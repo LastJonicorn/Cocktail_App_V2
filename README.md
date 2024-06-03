@@ -37,6 +37,11 @@
   <li> Worked a bit on dynamic width and height (WIP) & Adjusted elements placement </li>
   <li> Started working on MenuButton. Toggling Menu on and off works. Off by default </li>
 </ul>
+
+  <h1> 2.6.2024 </h1>
+<ul>
+  <li> Started adding functionality to Toggle elements to Menu Buttons </li>
+</ul>
     
 </div>
 
