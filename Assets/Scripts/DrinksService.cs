@@ -12,11 +12,14 @@ public class APIRequest : MonoBehaviour
     public TextMeshProUGUI responseText;
     public TextMeshProUGUI instructionsText;
     public Image responseImage;
+    public Button refreshButton;
+    public ScrollRect scrollRect;
 
     [Header("Ingredient and Measurement Pairs")]
     public GameObject[] ingredientPairs;
-    public Button refreshButton;
-    public ScrollRect scrollRect; // Add reference to the ScrollRect
+
+    private Drink currentDrink;
+    public AddFavorite addToFavoritesScript;
 
     void Start()
     {
@@ -62,43 +65,58 @@ public class APIRequest : MonoBehaviour
             }
             else
             {
-                string responseTextContent = webRequest.downloadHandler.text;
-                Debug.Log("Response: " + responseTextContent);
+                HandleResponse(webRequest.downloadHandler.text);
+            }
+        }
+    }
 
-                try
+    void HandleResponse(string responseTextContent)
+    {
+        Debug.Log("Response: " + responseTextContent);
+
+        try
+        {
+            DrinkResponse drinkResponse = JsonUtility.FromJson<DrinkResponse>(responseTextContent);
+            if (drinkResponse != null && drinkResponse.drinks != null && drinkResponse.drinks.Length > 0)
+            {
+                currentDrink = drinkResponse.drinks[0];
+                UpdateDrinkUI(currentDrink);
+
+                // Set current drink in the AddToFavorites script
+                if (addToFavoritesScript != null)
                 {
-                    DrinkResponse drinkResponse = JsonUtility.FromJson<DrinkResponse>(responseTextContent);
-                    if (drinkResponse != null && drinkResponse.drinks != null && drinkResponse.drinks.Length > 0)
-                    {
-                        Drink drink = drinkResponse.drinks[0];
-                        responseText.text = drink.strDrink ?? "Unknown Drink";
-                        instructionsText.text = drink.strInstructions ?? "No instructions available";
-
-                        AssignText(ingredientPairs, new string[]
-                        {
-                            drink.strIngredient1, drink.strIngredient2, drink.strIngredient3, drink.strIngredient4,
-                            drink.strIngredient5, drink.strIngredient6, drink.strIngredient7, drink.strIngredient8,
-                            drink.strIngredient9, drink.strIngredient10, drink.strIngredient11, drink.strIngredient12,
-                            drink.strIngredient13, drink.strIngredient14, drink.strIngredient15
-                        }, new string[]
-                        {
-                            drink.strMeasure1, drink.strMeasure2, drink.strMeasure3, drink.strMeasure4,
-                            drink.strMeasure5, drink.strMeasure6, drink.strMeasure7, drink.strMeasure8,
-                            drink.strMeasure9, drink.strMeasure10, drink.strMeasure11, drink.strMeasure12,
-                            drink.strMeasure13, drink.strMeasure14, drink.strMeasure15
-                        });
-
-                        if (!string.IsNullOrEmpty(drink.strDrinkThumb))
-                        {
-                            StartCoroutine(LoadImage(drink.strDrinkThumb));
-                        }
-                    }
-                }
-                catch (System.Exception e)
-                {
-                    Debug.LogError("Error parsing response: " + e.Message);
+                    addToFavoritesScript.SetCurrentDrink(currentDrink);
                 }
             }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("Error parsing response: " + e.Message);
+        }
+    }
+
+    void UpdateDrinkUI(Drink drink)
+    {
+        responseText.text = drink.strDrink ?? "Unknown Drink";
+        instructionsText.text = drink.strInstructions ?? "No instructions available";
+
+        AssignText(ingredientPairs, new string[]
+        {
+            drink.strIngredient1, drink.strIngredient2, drink.strIngredient3, drink.strIngredient4,
+            drink.strIngredient5, drink.strIngredient6, drink.strIngredient7, drink.strIngredient8,
+            drink.strIngredient9, drink.strIngredient10, drink.strIngredient11, drink.strIngredient12,
+            drink.strIngredient13, drink.strIngredient14, drink.strIngredient15
+        }, new string[]
+        {
+            drink.strMeasure1, drink.strMeasure2, drink.strMeasure3, drink.strMeasure4,
+            drink.strMeasure5, drink.strMeasure6, drink.strMeasure7, drink.strMeasure8,
+            drink.strMeasure9, drink.strMeasure10, drink.strMeasure11, drink.strMeasure12,
+            drink.strMeasure13, drink.strMeasure14, drink.strMeasure15
+        });
+
+        if (!string.IsNullOrEmpty(drink.strDrinkThumb))
+        {
+            StartCoroutine(LoadImage(drink.strDrinkThumb));
         }
     }
 
