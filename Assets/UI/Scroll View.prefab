@@ -4901,7 +4901,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6105750207912387363}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -5816,6 +5816,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4265841406316813823}
+  - component: {fileID: 576898379487085156}
   m_Layer: 5
   m_Name: LikeButton
   m_TagString: Untagged
@@ -5843,6 +5844,19 @@ RectTransform:
   m_AnchoredPosition: {x: 353, y: 12}
   m_SizeDelta: {x: 150, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &576898379487085156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8115605444047464068}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aabb2398d7c447e4aadbd26ccd5656da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  addToFavoritesButton: {fileID: 788207980838281634}
 --- !u!1 &8190469888234807165
 GameObject:
   m_ObjectHideFlags: 0

@@ -20,6 +20,7 @@ public class FavoritesManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            LoadFavoritesFromPlayerPrefs();
         }
         else
         {
@@ -33,6 +34,7 @@ public class FavoritesManager : MonoBehaviour
         {
             favoriteDrinks.Add(drink);
             StartCoroutine(DisplayFavorite(drink));
+            SaveFavoritesToPlayerPrefs();
             Debug.Log("Added to favorites: " + drink.strDrink);
         }
         else
@@ -47,12 +49,32 @@ public class FavoritesManager : MonoBehaviour
         if (favoriteItem != null)
         {
             TextMeshProUGUI drinkNameText = favoriteItem.GetComponentInChildren<TextMeshProUGUI>();
-            Image drinkImage = favoriteItem.GetComponentInChildren<Image>();
 
-            if (drinkNameText != null && drinkImage != null)
+            // Get all Image components in the prefab, including inactive ones
+            Image[] images = favoriteItem.GetComponentsInChildren<Image>(true);
+
+            // Find the specific Image component you need (e.g., by name or hierarchy level)
+            Image drinkImage = null;
+            foreach (Image img in images)
+            {
+                if (img.gameObject.name == "Favorite_Image") // Replace with the actual name of the child object
+                {
+                    drinkImage = img;
+                    break;
+                }
+            }
+
+            if (drinkNameText != null)
             {
                 drinkNameText.text = drink.strDrink;
+            }
+            else
+            {
+                Debug.LogError("TextMeshProUGUI component not found in prefab.");
+            }
 
+            if (drinkImage != null)
+            {
                 if (!string.IsNullOrEmpty(drink.strDrinkThumb))
                 {
                     UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(drink.strDrinkThumb);
@@ -68,19 +90,52 @@ public class FavoritesManager : MonoBehaviour
                         if (texture != null)
                         {
                             drinkImage.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                            drinkImage.preserveAspect = true; // Preserve the aspect ratio of the image
+                        }
+                        else
+                        {
+                            Debug.LogError("Downloaded texture is null");
                         }
                     }
                 }
             }
             else
             {
-                Debug.LogError("Favorite item prefab does not have the required TextMeshProUGUI and Image components.");
+                Debug.LogError("Image component not found in child named 'SpecificChildObjectName'.");
             }
+
+            // Force layout rebuild to ensure proper scroll view updating
+            Canvas.ForceUpdateCanvases();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(favoritesContainer.GetComponent<RectTransform>());
         }
         else
         {
             Debug.LogError("Failed to instantiate favorite item prefab.");
         }
+    }
+
+
+
+
+
+
+    private void LoadFavoritesFromPlayerPrefs()
+    {
+        if (PlayerPrefs.HasKey("FavoriteDrinks"))
+        {
+            string json = PlayerPrefs.GetString("FavoriteDrinks");
+            favoriteDrinks = JsonUtility.FromJson<FavoritesList>(json).drinks;
+            LoadFavorites();
+        }
+    }
+
+    private void SaveFavoritesToPlayerPrefs()
+    {
+        FavoritesList favoritesList = new FavoritesList { drinks = favoriteDrinks };
+        string json = JsonUtility.ToJson(favoritesList);
+        PlayerPrefs.SetString("FavoriteDrinks", json);
+        PlayerPrefs.Save();
+        Debug.Log("Data saved to PlayerPrefs");
     }
 
     public void LoadFavorites()
@@ -94,5 +149,11 @@ public class FavoritesManager : MonoBehaviour
         {
             StartCoroutine(DisplayFavorite(drink));
         }
+    }
+
+    [System.Serializable]
+    private class FavoritesList
+    {
+        public List<Drink> drinks;
     }
 }

@@ -5,18 +5,20 @@ public class ToggleElementOff : MonoBehaviour
 {
     [Header("Menu Items")]
 
-    public GameObject elementToToggleOff; // The elementToToggleOn to enable/disable
-    public GameObject secondElementToToggleOff; // The elementToToggleOn to enable/disable
-    public GameObject thirdElementToToggleOff; // The elementToToggleOn to enable/disable
-    public GameObject fourthElementToToggleOff; // The elementToToggleOn to enable/disable
+    public GameObject infoScreen; // The elementToToggleOn to enable/disable
+    public GameObject addDrinkScreen; // The elementToToggleOn to enable/disable
+    public GameObject yourDrinksScreen; // The elementToToggleOn to enable/disable
+    public GameObject favLiquorScreen; // The elementToToggleOn to enable/disable
 
     [Header("Screens")]
 
-    public GameObject fifthElementToToggleOff; // The elementToToggleOn to enable/disable
+    public GameObject searchScreen; // The elementToToggleOn to enable/disable
+    public GameObject randomScreen; // The elementToToggleOn to enable/disable
+    public GameObject favoritesScreen; // The elementToToggleOn to enable/disable
 
     [Header("Menu Panel")]
 
-    public GameObject sixthElementToToggleOff; // The elementToToggleOn to enable/disable
+    public GameObject menuPanel; // The elementToToggleOn to enable/disable
 
     private Button toggleButton; // Reference to the toggleButton component
 
@@ -29,54 +31,71 @@ public class ToggleElementOff : MonoBehaviour
         toggleButton.onClick.AddListener(ToggleFourth);
         toggleButton.onClick.AddListener(ToggleFifth);
         toggleButton.onClick.AddListener(ToggleSixth);
+        toggleButton.onClick.AddListener(ToggleSeventh);
+        toggleButton.onClick.AddListener(ToggleEighth);
 
     }
 
     void Toggle()
     {
-        if (elementToToggleOff != null)
+        if (infoScreen != null)
         {
-            elementToToggleOff.SetActive(false);
+            infoScreen.SetActive(false);
         }
     }
 
     void ToggleSecond()
     {
-        if (secondElementToToggleOff != null)
+        if (addDrinkScreen != null)
         {
-            secondElementToToggleOff.SetActive(false);
+            addDrinkScreen.SetActive(false);
         }
     }
 
     void ToggleThird()
     {
-        if (thirdElementToToggleOff != null)
+        if (yourDrinksScreen != null)
         {
-            thirdElementToToggleOff.SetActive(false);
+            yourDrinksScreen.SetActive(false);
         }
     }
 
     void ToggleFourth()
     {
-        if (fourthElementToToggleOff != null)
+        if (favLiquorScreen != null)
         {
-            fourthElementToToggleOff.SetActive(false);
+            favLiquorScreen.SetActive(false);
         }
     }
 
     void ToggleFifth()
     {
-        if (fifthElementToToggleOff != null)
+        if (searchScreen != null)
         {
-            fifthElementToToggleOff.SetActive(false);
+            searchScreen.SetActive(false);
         }
     }
 
     void ToggleSixth()
     {
-        if (sixthElementToToggleOff != null)
+        if (menuPanel != null)
         {
-            sixthElementToToggleOff.SetActive(false);
+            menuPanel.SetActive(false);
+        }
+    }
+
+    void ToggleSeventh()
+    {
+        if (randomScreen != null)
+        {
+            randomScreen.SetActive(false);
+        }
+    }
+    void ToggleEighth()
+    {
+        if (favoritesScreen != null)
+        {
+            favoritesScreen.SetActive(false);
         }
     }
 }

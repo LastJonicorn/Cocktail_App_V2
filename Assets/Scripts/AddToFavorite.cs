@@ -5,12 +5,9 @@ using UnityEngine.UI;
 
 public class AddFavorite : MonoBehaviour
 {
-
     public Button addToFavoritesButton;
-
     private Drink currentDrink;
 
-    // Start is called before the first frame update
     void Start()
     {
         if (addToFavoritesButton != null)

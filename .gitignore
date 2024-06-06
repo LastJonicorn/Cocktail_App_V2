@@ -74,3 +74,6 @@ crashlytics-build.properties
 # Custom ignores
 /Assets/StreamingAssets/Config.txt
 /Assets/StreamingAssets/Config.txt.meta
+/Assets/StreamingAssets/Config_Search.txt
+/Assets/StreamingAssets/Config_Search.txt.meta
+
