@@ -45,8 +45,28 @@
     
 </div>
 
+  <h1> 6.6.2024 </h1>
+<ul>
+  <li> Toggling screens on and off works pretty well </li>
+  <li> Adding drinks to favorites works </li>
+  <li> Added favorites stay in memory </li>
+</ul>
+    
+</div>
+
+  <h1> TODOS </h1>
+<ul>
+  <li> Remove favorites </li>
+  <li> Search drinks </li>
+  <li> Click favorites to show full instructions </li>
+  <li> Click searched drink to show full instructions </li>
+  <li> Add your own drinks (Name, Image, Ingredients, Measurements & Instructions) </li>
+  <li> Add your favorite liquors with image </li>
+</ul>
+    
+</div>
+
 <h1> Problems </h1>
 <ul>
-  <li> Not dynamically reactive horizontally. Screensize effects everything ATM </li>
   <li> Apparently StreamingAssets is viewable to endUser so that has to change </li>
 </ul>
