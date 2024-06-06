@@ -37,7 +37,7 @@ public class APIRequest : MonoBehaviour
             {
                 string configJson = File.ReadAllText(configPath);
                 Config config = JsonUtility.FromJson<Config>(configJson);
-                apiUrl = config.apiUrl;
+                apiUrl = config.apiUrl + "random.php";
             }
             catch (System.Exception e)
             {
@@ -181,6 +181,12 @@ public class APIRequest : MonoBehaviour
         }
 
         StartCoroutine(GetRequest(apiUrl));
+    }
+
+    public void SearchForDrinks(string searchTerm)
+    {
+        string searchUrl = apiUrl + "/search.php?s=" + searchTerm;
+        StartCoroutine(GetRequest(searchUrl));
     }
 }
 
