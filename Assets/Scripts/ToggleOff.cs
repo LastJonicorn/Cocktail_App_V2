@@ -20,6 +20,10 @@ public class ToggleElementOff : MonoBehaviour
 
     public GameObject menuPanel; // The elementToToggleOn to enable/disable
 
+    [Header("Camera Controller")]
+
+    public GameObject cameraController; // The elementToToggleOn to enable/disable
+
     private Button toggleButton; // Reference to the toggleButton component
 
     void Start()
@@ -33,7 +37,7 @@ public class ToggleElementOff : MonoBehaviour
         toggleButton.onClick.AddListener(ToggleSixth);
         toggleButton.onClick.AddListener(ToggleSeventh);
         toggleButton.onClick.AddListener(ToggleEighth);
-
+        toggleButton.onClick.AddListener(ToggleNinth);
     }
 
     void Toggle()
@@ -96,6 +100,14 @@ public class ToggleElementOff : MonoBehaviour
         if (favoritesScreen != null)
         {
             favoritesScreen.SetActive(false);
+        }
+    }
+
+    void ToggleNinth()
+    {
+        if (cameraController != null)
+        {
+            cameraController.SetActive(false);
         }
     }
 }

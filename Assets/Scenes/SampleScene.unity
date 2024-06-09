@@ -930,6 +930,7 @@ MonoBehaviour:
   randomScreen: {fileID: 0}
   favoritesScreen: {fileID: 935103768}
   menuPanel: {fileID: 309058028}
+  cameraController: {fileID: 825228862}
 --- !u!1 &271539243 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3009732031949605771, guid: 4ef7c3ba40c1b114c96efdf067e521c0, type: 3}
@@ -1618,6 +1619,7 @@ MonoBehaviour:
   randomScreen: {fileID: 271539243}
   favoritesScreen: {fileID: 0}
   menuPanel: {fileID: 309058028}
+  cameraController: {fileID: 825228862}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -1780,7 +1782,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &825228863
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1794,7 +1796,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rawImage: {fileID: 1079075365}
-  aspectRatioFitter: {fileID: 1079075368}
 --- !u!4 &825228864
 Transform:
   m_ObjectHideFlags: 0
@@ -1844,9 +1845,9 @@ RectTransform:
   - {fileID: 1644006041}
   m_Father: {fileID: 7005518513704034649}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 0, y: -1082.72}
   m_SizeDelta: {x: 500, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &849003209
@@ -1995,21 +1996,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 7104037505664384536, guid: 88ce5a5bffadbf34c8ab209389e11a64, type: 3}
   m_PrefabInstance: {fileID: 8437556131361854313}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &935103770
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 935103768}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fcdac4c80f13e98468aef86a1318bba4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  searchInput: {fileID: 0}
-  contentPanel: {fileID: 0}
-  drinkEntryPrefab: {fileID: 0}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -2259,6 +2245,7 @@ MonoBehaviour:
   randomScreen: {fileID: 271539243}
   favoritesScreen: {fileID: 935103768}
   menuPanel: {fileID: 309058028}
+  cameraController: {fileID: 825228862}
 --- !u!1 &1045005228
 GameObject:
   m_ObjectHideFlags: 0
@@ -2415,7 +2402,6 @@ GameObject:
   - component: {fileID: 1079075367}
   - component: {fileID: 1079075366}
   - component: {fileID: 1079075365}
-  - component: {fileID: 1079075368}
   m_Layer: 5
   m_Name: RawImage
   m_TagString: Untagged
@@ -2472,25 +2458,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 7005518513704034649}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 500, y: 500}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 0, y: -499}
+  m_SizeDelta: {x: 510.5, y: 510.5}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1079075368
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1079075364}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 86710e43de46f6f4bac7c8e50813a599, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AspectMode: 2
-  m_AspectRatio: 1
 --- !u!1 &1133072640
 GameObject:
   m_ObjectHideFlags: 0
@@ -2525,9 +2497,9 @@ RectTransform:
   - {fileID: 142754423}
   m_Father: {fileID: 7005518513704034649}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 0, y: -164.43}
   m_SizeDelta: {x: 500, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1133072642
@@ -3555,9 +3527,9 @@ RectTransform:
   - {fileID: 1175450464}
   m_Father: {fileID: 7005518513704034649}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 0, y: -843.29}
   m_SizeDelta: {x: 160, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1823242381
@@ -3944,10 +3916,18 @@ PrefabInstance:
       propertyPath: elementToToggleOn
       value: 
       objectReference: {fileID: 2098542097}
+    - target: {fileID: 685820940300471061, guid: 0160883fdf5061247938f849f0a732e3, type: 3}
+      propertyPath: secondElementToToggleOn
+      value: 
+      objectReference: {fileID: 825228862}
     - target: {fileID: 1885742886743713186, guid: 0160883fdf5061247938f849f0a732e3, type: 3}
       propertyPath: elementToToggleOn
       value: 
       objectReference: {fileID: 420414525}
+    - target: {fileID: 1885742886743713186, guid: 0160883fdf5061247938f849f0a732e3, type: 3}
+      propertyPath: secondElementToToggleOn
+      value: 
+      objectReference: {fileID: 825228862}
     - target: {fileID: 1973048487849010466, guid: 0160883fdf5061247938f849f0a732e3, type: 3}
       propertyPath: menuPanel
       value: 
@@ -4012,6 +3992,10 @@ PrefabInstance:
       propertyPath: favoritesScreen
       value: 
       objectReference: {fileID: 935103768}
+    - target: {fileID: 2385318840738641200, guid: 0160883fdf5061247938f849f0a732e3, type: 3}
+      propertyPath: cameraController
+      value: 
+      objectReference: {fileID: 825228862}
     - target: {fileID: 2385318840738641200, guid: 0160883fdf5061247938f849f0a732e3, type: 3}
       propertyPath: yourDrinksScreen
       value: 
@@ -4149,6 +4133,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 935103768}
     - target: {fileID: 4382757045212611408, guid: 0160883fdf5061247938f849f0a732e3, type: 3}
+      propertyPath: cameraController
+      value: 
+      objectReference: {fileID: 825228862}
+    - target: {fileID: 4382757045212611408, guid: 0160883fdf5061247938f849f0a732e3, type: 3}
       propertyPath: elementToToggleOff
       value: 
       objectReference: {fileID: 205713854}
@@ -4188,6 +4176,10 @@ PrefabInstance:
       propertyPath: favoritesScreen
       value: 
       objectReference: {fileID: 935103768}
+    - target: {fileID: 6202177981252442479, guid: 0160883fdf5061247938f849f0a732e3, type: 3}
+      propertyPath: cameraController
+      value: 
+      objectReference: {fileID: 825228862}
     - target: {fileID: 6202177981252442479, guid: 0160883fdf5061247938f849f0a732e3, type: 3}
       propertyPath: yourDrinksScreen
       value: 
@@ -5353,8 +5345,36 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1962578367052725179, guid: aa681426bc0d27a4a8b8e1863a8756f4, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1962578367052725179, guid: aa681426bc0d27a4a8b8e1863a8756f4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1962578367052725179, guid: aa681426bc0d27a4a8b8e1863a8756f4, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1962578367052725179, guid: aa681426bc0d27a4a8b8e1863a8756f4, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1962578367052725179, guid: aa681426bc0d27a4a8b8e1863a8756f4, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 1066
+      objectReference: {fileID: 0}
+    - target: {fileID: 1962578367052725179, guid: aa681426bc0d27a4a8b8e1863a8756f4, type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1962578367052725179, guid: aa681426bc0d27a4a8b8e1863a8756f4, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1962578367052725179, guid: aa681426bc0d27a4a8b8e1863a8756f4, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 736.15
       objectReference: {fileID: 0}
     - target: {fileID: 4095952639949449178, guid: aa681426bc0d27a4a8b8e1863a8756f4, type: 3}
       propertyPath: m_AnchorMax.y
@@ -5378,7 +5398,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6032671032695227844, guid: aa681426bc0d27a4a8b8e1863a8756f4, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6576421728361202726, guid: aa681426bc0d27a4a8b8e1863a8756f4, type: 3}
       propertyPath: m_Pivot.x
@@ -5460,7 +5480,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1873640566714974866, guid: aa681426bc0d27a4a8b8e1863a8756f4, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 1962578367052725179, guid: aa681426bc0d27a4a8b8e1863a8756f4, type: 3}
@@ -5827,10 +5848,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 4078786082169070295, guid: 88ce5a5bffadbf34c8ab209389e11a64, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 935103770}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 88ce5a5bffadbf34c8ab209389e11a64, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

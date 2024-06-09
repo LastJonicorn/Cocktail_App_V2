@@ -5,7 +5,6 @@ using System.Collections;
 public class CameraController : MonoBehaviour
 {
     public RawImage rawImage;
-    public AspectRatioFitter aspectRatioFitter;
     private WebCamTexture webCamTexture;
 
     void Start()
@@ -15,6 +14,9 @@ public class CameraController : MonoBehaviour
         rawImage.texture = webCamTexture;
         rawImage.material.mainTexture = webCamTexture;
         webCamTexture.Play();
+
+        // Set the RawImage dimensions to 500x500
+        rawImage.rectTransform.sizeDelta = new Vector2(500, 500);
     }
 
     public void TakePicture()
@@ -43,7 +45,6 @@ public class CameraController : MonoBehaviour
 
         // Update RawImage to show the captured square photo
         rawImage.texture = squarePhoto;
-        rawImage.rectTransform.sizeDelta = new Vector2(squarePhoto.width, squarePhoto.height);
     }
 
     private Texture2D CropToSquare(Texture2D original)
@@ -56,24 +57,26 @@ public class CameraController : MonoBehaviour
         cropped.SetPixels(original.GetPixels(x, y, size, size));
         cropped.Apply();
 
-        return cropped;
+        // Resize the cropped image to 500x500
+        Texture2D resizedCropped = ResizeTexture(cropped, 500, 500);
+
+        return resizedCropped;
     }
 
-    void Update()
+    private Texture2D ResizeTexture(Texture2D original, int width, int height)
     {
-        // Adjust the aspect ratio of the RawImage to maintain a square display
-        if (webCamTexture.width > 100)
-        {
-            float aspectRatio = (float)webCamTexture.width / (float)webCamTexture.height;
-            if (aspectRatio > 1) // Width > Height
-            {
-                aspectRatioFitter.aspectRatio = 1.0f / aspectRatio;
-            }
-            else // Height >= Width
-            {
-                aspectRatioFitter.aspectRatio = aspectRatio;
-            }
-            rawImage.rectTransform.sizeDelta = new Vector2(Mathf.Min(rawImage.rectTransform.sizeDelta.x, rawImage.rectTransform.sizeDelta.y), Mathf.Min(rawImage.rectTransform.sizeDelta.x, rawImage.rectTransform.sizeDelta.y));
-        }
+        RenderTexture rt = RenderTexture.GetTemporary(width, height);
+        rt.filterMode = FilterMode.Trilinear;
+
+        RenderTexture.active = rt;
+        Graphics.Blit(original, rt);
+        Texture2D result = new Texture2D(width, height);
+        result.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+        result.Apply();
+
+        RenderTexture.active = null;
+        RenderTexture.ReleaseTemporary(rt);
+
+        return result;
     }
 }
