@@ -27,4 +27,23 @@ public class AddToFavorites : MonoBehaviour
             Debug.Log("Added to favorites: " + currentDrink.strDrink);
         }
     }
+
+    // Subscribe to the OnFavoriteClicked event
+    void OnEnable()
+    {
+        FavoritesManager.OnFavoriteClicked += OpenFavoriteDetailPanel;
+    }
+
+    // Unsubscribe from the event when this script is disabled
+    void OnDisable()
+    {
+        FavoritesManager.OnFavoriteClicked -= OpenFavoriteDetailPanel;
+    }
+
+    // Method to open the detail panel for the selected favorite drink
+    void OpenFavoriteDetailPanel(Drink drink)
+    {
+        // Implement your logic to open the detail panel here
+        Debug.Log("Opening detail panel for: " + drink.strDrink);
+    }
 }

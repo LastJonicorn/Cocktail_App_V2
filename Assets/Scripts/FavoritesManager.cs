@@ -1,9 +1,10 @@
-using System.Collections.Generic;
-using UnityEngine;
-using TMPro;
-using UnityEngine.UI;
-using UnityEngine.Networking;
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using UnityEngine.Networking;
+using UnityEngine.UI;
 
 public class FavoritesManager : MonoBehaviour
 {
@@ -11,8 +12,11 @@ public class FavoritesManager : MonoBehaviour
 
     public GameObject favoriteItemPrefab;
     public Transform favoritesContainer;
+    public GameObject favoriteDetailPanel; // Reference to the panel to open
 
-    private List<Drink> favoriteDrinks = new List<Drink>();
+    public static event Action<Drink> OnFavoriteClicked;
+
+    private HashSet<Drink> favoriteDrinks = new HashSet<Drink>();
 
     void Awake()
     {
@@ -30,9 +34,8 @@ public class FavoritesManager : MonoBehaviour
 
     public void AddToFavorites(Drink drink)
     {
-        if (!favoriteDrinks.Contains(drink))
+        if (favoriteDrinks.Add(drink))
         {
-            favoriteDrinks.Add(drink);
             StartCoroutine(DisplayFavorite(drink));
             SaveFavoritesToPlayerPrefs();
             Debug.Log("Added to favorites: " + drink.strDrink);
@@ -46,24 +49,11 @@ public class FavoritesManager : MonoBehaviour
     IEnumerator DisplayFavorite(Drink drink)
     {
         GameObject favoriteItem = Instantiate(favoriteItemPrefab, favoritesContainer);
+
         if (favoriteItem != null)
         {
+            // Set up the text component
             TextMeshProUGUI drinkNameText = favoriteItem.GetComponentInChildren<TextMeshProUGUI>();
-
-            // Get all Image components in the prefab, including inactive ones
-            Image[] images = favoriteItem.GetComponentsInChildren<Image>(true);
-
-            // Find the specific Image component you need (e.g., by name or hierarchy level)
-            Image drinkImage = null;
-            foreach (Image img in images)
-            {
-                if (img.gameObject.name == "Favorite_Image") // Replace with the actual name of the child object
-                {
-                    drinkImage = img;
-                    break;
-                }
-            }
-
             if (drinkNameText != null)
             {
                 drinkNameText.text = drink.strDrink;
@@ -73,11 +63,12 @@ public class FavoritesManager : MonoBehaviour
                 Debug.LogError("TextMeshProUGUI component not found in prefab.");
             }
 
-            if (drinkImage != null)
+            // Set up the image component
+            Image drinkImage = favoriteItem.GetComponentInChildren<Image>();
+            if (drinkImage != null && !string.IsNullOrEmpty(drink.strDrinkThumb))
             {
-                if (!string.IsNullOrEmpty(drink.strDrinkThumb))
+                using (UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(drink.strDrinkThumb))
                 {
-                    UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(drink.strDrinkThumb);
                     yield return webRequest.SendWebRequest();
 
                     if (webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError)
@@ -101,7 +92,18 @@ public class FavoritesManager : MonoBehaviour
             }
             else
             {
-                Debug.LogError("Image component not found in child named 'SpecificChildObjectName'.");
+                Debug.LogError("Image component not found or drink thumb URL is null or empty.");
+            }
+
+            // Set up the onClick method dynamically
+            Button button = favoriteItem.GetComponentInChildren<Button>();
+            if (button != null)
+            {
+                button.onClick.AddListener(() => OnFavoriteItemClicked(drink));
+            }
+            else
+            {
+                Debug.LogError("Button component not found in prefab.");
             }
 
             // Force layout rebuild to ensure proper scroll view updating
@@ -114,9 +116,10 @@ public class FavoritesManager : MonoBehaviour
         }
     }
 
-
-
-
+    void OnFavoriteItemClicked(Drink drink)
+    {
+        FavoritesManager.Instance.FavoriteClicked(drink);
+    }
 
 
     private void LoadFavoritesFromPlayerPrefs()
@@ -124,14 +127,14 @@ public class FavoritesManager : MonoBehaviour
         if (PlayerPrefs.HasKey("FavoriteDrinks"))
         {
             string json = PlayerPrefs.GetString("FavoriteDrinks");
-            favoriteDrinks = JsonUtility.FromJson<FavoritesList>(json).drinks;
+            favoriteDrinks = new HashSet<Drink>(JsonUtility.FromJson<FavoritesList>(json).drinks);
             LoadFavorites();
         }
     }
 
     private void SaveFavoritesToPlayerPrefs()
     {
-        FavoritesList favoritesList = new FavoritesList { drinks = favoriteDrinks };
+        FavoritesList favoritesList = new FavoritesList { drinks = new List<Drink>(favoriteDrinks) };
         string json = JsonUtility.ToJson(favoritesList);
         PlayerPrefs.SetString("FavoriteDrinks", json);
         PlayerPrefs.Save();
@@ -148,6 +151,28 @@ public class FavoritesManager : MonoBehaviour
         foreach (Drink drink in favoriteDrinks)
         {
             StartCoroutine(DisplayFavorite(drink));
+        }
+    }
+    public void FavoriteClicked(Drink drink)
+    {
+        // Open the detail panel when a favorite is clicked
+        if (favoriteDetailPanel != null)
+        {
+            favoriteDetailPanel.SetActive(true);
+            // Pass the selected drink to the detail panel script
+            DetailPanelScript detailPanelScript = favoriteDetailPanel.GetComponent<DetailPanelScript>();
+            if (detailPanelScript != null)
+            {
+                detailPanelScript.DisplayDrinkDetails(drink);
+            }
+            else
+            {
+                Debug.LogError("Detail panel script not found.");
+            }
+        }
+        else
+        {
+            Debug.LogError("Favorite detail panel is not assigned.");
         }
     }
 
