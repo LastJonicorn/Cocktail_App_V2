@@ -9,7 +9,7 @@ public class CameraController : MonoBehaviour
 
     void Start()
     {
-        // Start the camera
+        // Initialize the WebCamTexture
         webCamTexture = new WebCamTexture();
         rawImage.texture = webCamTexture;
         rawImage.material.mainTexture = webCamTexture;
@@ -19,8 +19,20 @@ public class CameraController : MonoBehaviour
         rawImage.rectTransform.sizeDelta = new Vector2(500, 500);
     }
 
+    void OnDisable()
+    {
+        // Stop the WebCamTexture when the GameObject is disabled
+        if (webCamTexture != null)
+        {
+            webCamTexture.Stop();
+            rawImage.texture = null;
+            rawImage.material.mainTexture = null;
+        }
+    }
+
     public void TakePicture()
     {
+        // Start coroutine to capture the photo
         StartCoroutine(CapturePhoto());
     }
 
@@ -29,11 +41,12 @@ public class CameraController : MonoBehaviour
         // Wait for the end of the frame to capture the photo
         yield return new WaitForEndOfFrame();
 
+        // Capture the photo from the WebCamTexture
         Texture2D photo = new Texture2D(webCamTexture.width, webCamTexture.height);
         photo.SetPixels(webCamTexture.GetPixels());
         photo.Apply();
 
-        // Crop the photo to a square
+        // Crop and resize the photo to a square
         Texture2D squarePhoto = CropToSquare(photo);
 
         // Save the photo to persistent data path
@@ -45,6 +58,9 @@ public class CameraController : MonoBehaviour
 
         // Update RawImage to show the captured square photo
         rawImage.texture = squarePhoto;
+
+        // Clean up temporary texture
+        Destroy(photo);
     }
 
     private Texture2D CropToSquare(Texture2D original)
@@ -53,12 +69,16 @@ public class CameraController : MonoBehaviour
         int x = (original.width - size) / 2;
         int y = (original.height - size) / 2;
 
+        // Create a cropped square texture
         Texture2D cropped = new Texture2D(size, size);
         cropped.SetPixels(original.GetPixels(x, y, size, size));
         cropped.Apply();
 
         // Resize the cropped image to 500x500
         Texture2D resizedCropped = ResizeTexture(cropped, 500, 500);
+
+        // Clean up temporary cropped texture
+        Destroy(cropped);
 
         return resizedCropped;
     }
@@ -68,12 +88,14 @@ public class CameraController : MonoBehaviour
         RenderTexture rt = RenderTexture.GetTemporary(width, height);
         rt.filterMode = FilterMode.Trilinear;
 
+        // Set the active RenderTexture and blit the original texture into it
         RenderTexture.active = rt;
         Graphics.Blit(original, rt);
         Texture2D result = new Texture2D(width, height);
         result.ReadPixels(new Rect(0, 0, width, height), 0, 0);
         result.Apply();
 
+        // Clean up RenderTexture
         RenderTexture.active = null;
         RenderTexture.ReleaseTemporary(rt);
 
