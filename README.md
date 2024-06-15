@@ -25,40 +25,47 @@
 
 </div>
     
-  <h1> 26.5.2024 </h1>
+<h1> 26.5.2024 </h1>
 <ul>
   <li> Worked a bit on dynamic width and height (WIP) </li>
 </ul>
     
 </div>
 
-  <h1> 31.5.2024 </h1>
+<h1> 31.5.2024 </h1>
 <ul>
   <li> Worked a bit on dynamic width and height (WIP) & Adjusted elements placement </li>
   <li> Started working on MenuButton. Toggling Menu on and off works. Off by default </li>
 </ul>
 
-  <h1> 2.6.2024 </h1>
+<h1> 2.6.2024 </h1>
 <ul>
   <li> Started adding functionality to Toggle elements to Menu Buttons </li>
 </ul>
     
 </div>
 
-  <h1> 6.6.2024 </h1>
+<h1> 6.6.2024 </h1>
 <ul>
   <li> Toggling screens on and off works pretty well </li>
   <li> Adding drinks to favorites works </li>
   <li> Added favorites stay in memory </li>
 </ul>
 
-  <h1> 10.6.2024 </h1>
+<h1> 10.6.2024 </h1>
 <ul>
   <li> Search function works but is WIP </li>
   <li> Adding your own drink screen enables the phone camera (Should also ask permission to do so) </li>
   <li> Added some style elements </li>
   <li> Clicking on favorite opens additional screen which has more info on favorite VERY WIP </li>
   <li> Added all the screens inside the BurgerMenu (Info, Add drink, Your Drinks, Favorite Liquors) </li>
+</ul>
+    
+</div>
+
+<h1> 15.6.2024 </h1>
+<ul>
+  <li> Tweaked the ShowFavoriteDetail panel so the favorite gives all information and looks a bit cleaner </li>
 </ul>
     
 </div>
