@@ -118,9 +118,8 @@ public class FavoritesManager : MonoBehaviour
 
     void OnFavoriteItemClicked(Drink drink)
     {
-        FavoritesManager.Instance.FavoriteClicked(drink);
+        FavoriteClicked(drink);
     }
-
 
     private void LoadFavoritesFromPlayerPrefs()
     {
@@ -153,6 +152,7 @@ public class FavoritesManager : MonoBehaviour
             StartCoroutine(DisplayFavorite(drink));
         }
     }
+
     public void FavoriteClicked(Drink drink)
     {
         // Open the detail panel when a favorite is clicked
