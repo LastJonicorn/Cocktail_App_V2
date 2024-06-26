@@ -15,6 +15,7 @@ public class ToggleElementOff : MonoBehaviour
     public GameObject searchScreen; // The elementToToggleOn to enable/disable
     public GameObject randomScreen; // The elementToToggleOn to enable/disable
     public GameObject favoritesScreen; // The elementToToggleOn to enable/disable
+    public GameObject favoritesDetailScreen; // The elementToToggleOn to enable/disable
 
     [Header("Menu Panel")]
 
@@ -38,6 +39,7 @@ public class ToggleElementOff : MonoBehaviour
         toggleButton.onClick.AddListener(ToggleSeventh);
         toggleButton.onClick.AddListener(ToggleEighth);
         toggleButton.onClick.AddListener(ToggleNinth);
+        toggleButton.onClick.AddListener(ToggleTenth);
     }
 
     void Toggle()
@@ -108,6 +110,14 @@ public class ToggleElementOff : MonoBehaviour
         if (cameraController != null)
         {
             cameraController.SetActive(false);
+        }
+    }
+
+    void ToggleTenth()
+    {
+        if (favoritesDetailScreen != null)
+        {
+            favoritesDetailScreen.SetActive(false);
         }
     }
 }
