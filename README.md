@@ -67,15 +67,22 @@
 <ul>
   <li> Tweaked the ShowFavoriteDetail panel so the favorite gives all information and looks a bit cleaner </li>
 </ul>
-    
+
+</div>
+
+<h1> 28.6.2024 </h1>
+<ul>
+  <li> Limited search results to 20 </li>
+  <li> Search results use lowRes images (100x100) </li>
+  <li> Clicking search results opens that drinks full details </li>
+</ul>
+
 </div>
 
   <h1> TODOS </h1>
 <ul>
   <li> Remove favorites </li>
   <li> Search drinks WIP </li>
-  <li> Click favorites to show full instructions WIP </li>
-  <li> Click searched drink to show full instructions </li>
   <li> Add your own drinks (Name, Image, Ingredients, Measurements & Instructions) WIP </li>
   <li> Add your favorite liquors with image </li>
 </ul>
