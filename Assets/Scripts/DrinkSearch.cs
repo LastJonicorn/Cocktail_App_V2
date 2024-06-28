@@ -13,6 +13,9 @@ public class DrinkSearch : MonoBehaviour
     public Transform contentPanel; // Parent panel to hold the drink entries
     public GameObject drinkEntryPrefab; // Prefab for individual drink entries
 
+    public GameObject searchDetailPanel; // Reference to the panel to open
+    public DetailPanelScript detailPanelScript; // Reference to DetailPanelScript attached to searchDetailPanel
+
     void Start()
     {
         LoadConfig();
@@ -70,8 +73,11 @@ public class DrinkSearch : MonoBehaviour
             {
                 ClearDrinks(); // Clear existing drink entries
 
+                int count = 0;
                 foreach (Drink drink in drinkResponse.drinks)
                 {
+                    if (count >= 20) break; // Limit to 20 drinks
+
                     GameObject drinkEntry = Instantiate(drinkEntryPrefab, contentPanel);
                     drinkEntry.transform.SetParent(contentPanel, false);
 
@@ -89,16 +95,61 @@ public class DrinkSearch : MonoBehaviour
                     }
                     if (!string.IsNullOrEmpty(drink.strDrinkThumb))
                     {
-                        StartCoroutine(LoadImage(drink.strDrinkThumb, image));
+                        // Modify the image URL to use the 100x100 version
+                        string lowResImageUrl = drink.strDrinkThumb.Replace("/preview", "/100x100");
+                        StartCoroutine(LoadImage(lowResImageUrl, image));
                     }
+
+                    // Add click handler to open detail panel
+                    Button button = drinkEntry.GetComponentInChildren<Button>();
+                    if (button != null)
+                    {
+                        button.onClick.AddListener(() => OnDrinkEntryClicked(drink));
+                    }
+                    else
+                    {
+                        Debug.LogError("Button component not found on drink entry prefab.");
+                    }
+
+                    count++;
                 }
+            }
+            else
+            {
+                Debug.LogWarning("No drinks found in the response.");
             }
         }
         catch (System.Exception e)
         {
-            Debug.LogError("Error parsing response: " + e.Message);
+            Debug.LogError("Error handling response: " + e.Message);
         }
     }
+
+
+    void OnDrinkEntryClicked(Drink drink)
+    {
+        Debug.Log("Drink entry clicked: " + drink.strDrink);
+
+        if (searchDetailPanel != null)
+        {
+            searchDetailPanel.SetActive(true);
+            DetailPanelScript detailPanelScript = searchDetailPanel.GetComponent<DetailPanelScript>();
+            if (detailPanelScript != null)
+            {
+                detailPanelScript.DisplayDrinkDetails(drink);
+            }
+            else
+            {
+                Debug.LogError("DetailPanelScript component not found on searchDetailPanel.");
+            }
+        }
+        else
+        {
+            Debug.LogError("searchDetailPanel is not assigned.");
+        }
+    }
+
+
 
     void ClearDrinks()
     {
@@ -121,7 +172,7 @@ public class DrinkSearch : MonoBehaviour
             else
             {
                 Texture2D texture = DownloadHandlerTexture.GetContent(webRequest);
-                if (texture != null && image != null) // Check if image is not null
+                if (texture != null && image != null)
                 {
                     Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
                     image.sprite = sprite;
@@ -129,7 +180,6 @@ public class DrinkSearch : MonoBehaviour
             }
         }
     }
-
 
     public void SearchForDrinks(string searchTerm)
     {
