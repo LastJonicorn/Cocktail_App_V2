@@ -83,8 +83,9 @@
 <ul>
   <li> Remove favorites </li>
   <li> Search drinks WIP </li>
+  <li> Add searched drinks to favorites </li>
   <li> Add your own drinks (Name, Image, Ingredients, Measurements & Instructions) WIP </li>
-  <li> Add your favorite liquors with image </li>
+  <li> Add your favorite liquors with image (Maybe...) </li>
 </ul>
     
 </div>
@@ -92,4 +93,5 @@
 <h1> Problems </h1>
 <ul>
   <li> Server for the apiKEY </li>
+  <li> Favorite liquors (Is it necessary?) </li>
 </ul>
