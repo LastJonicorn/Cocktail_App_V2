@@ -83,6 +83,8 @@
 <ul>
   <li> Searched drinks can be added to favorites </li>
   <li> Search by ingredient works </li>
+  <li> Deleting favorites works </li>
+  
   <li> 
     <h3> 1st build </h3> 
     <ul> 
