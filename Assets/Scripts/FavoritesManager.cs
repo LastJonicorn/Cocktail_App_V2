@@ -95,6 +95,20 @@ public class FavoritesManager : MonoBehaviour
                 Debug.LogError("Image component not found or drink thumb URL is null or empty.");
             }
 
+            // Set up the onClick method dynamically
+            Button Detailbutton = favoriteItem.GetComponentInChildren<Button>();
+            if (Detailbutton != null)
+            {
+                Detailbutton.onClick.AddListener(() => OnFavoriteItemClicked(drink));
+            }
+            else
+            {
+                Debug.LogError("Button component not found in prefab.");
+            }
+
+            // Force layout rebuild to ensure proper scroll view updating
+            Canvas.ForceUpdateCanvases();
+
             // Find the button with the tag "RemoveFave" among the children
             Button[] buttons = favoriteItem.GetComponentsInChildren<Button>(true);
             Button removeButton = null;
