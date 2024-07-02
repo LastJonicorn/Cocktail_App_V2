@@ -79,11 +79,19 @@
 
 </div>
 
+<h1> 2.7.2024 </h1>
+<ul>
+  <li> Searched drinks can be added to favorites </li>
+  <li> Search by ingredient works </li>
+  <li> <h3> 1st build </h3> </br> Opens on Android device. Forced portrait. Scrolling feels a bit slow. </li>
+</ul>
+
+</div>
+
   <h1> TODOS </h1>
 <ul>
   <li> Remove favorites </li>
   <li> Search drinks WIP </li>
-  <li> Add searched drinks to favorites </li>
   <li> Add your own drinks (Name, Image, Ingredients, Measurements & Instructions) WIP </li>
   <li> Add your favorite liquors with image (Maybe...) </li>
 </ul>
