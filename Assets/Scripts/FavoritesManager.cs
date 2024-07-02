@@ -95,15 +95,27 @@ public class FavoritesManager : MonoBehaviour
                 Debug.LogError("Image component not found or drink thumb URL is null or empty.");
             }
 
-            // Set up the onClick method dynamically
-            Button button = favoriteItem.GetComponentInChildren<Button>();
-            if (button != null)
+            // Find the button with the tag "RemoveFave" among the children
+            Button[] buttons = favoriteItem.GetComponentsInChildren<Button>(true);
+            Button removeButton = null;
+
+            foreach (var button in buttons)
             {
-                button.onClick.AddListener(() => OnFavoriteItemClicked(drink));
+                if (button.CompareTag("RemoveFave"))
+                {
+                    removeButton = button;
+                    break;
+                }
+            }
+
+            if (removeButton != null)
+            {
+                // Add onClick listener to the removeButton
+                removeButton.onClick.AddListener(() => RemoveFromFavorites(drink, favoriteItem));
             }
             else
             {
-                Debug.LogError("Button component not found in prefab.");
+                Debug.LogError("Button with tag RemoveFave not found in favorite item prefab.");
             }
 
             // Force layout rebuild to ensure proper scroll view updating
@@ -113,6 +125,19 @@ public class FavoritesManager : MonoBehaviour
         else
         {
             Debug.LogError("Failed to instantiate favorite item prefab.");
+        }
+    }
+    public void RemoveFromFavorites(Drink drink, GameObject favoriteItem)
+    {
+        if (favoriteDrinks.Remove(drink))
+        {
+            SaveFavoritesToPlayerPrefs();
+            Destroy(favoriteItem);
+            Debug.Log("Removed from favorites: " + drink.strDrink);
+        }
+        else
+        {
+            Debug.LogError("Drink not found in favorites: " + drink.strDrink);
         }
     }
 
