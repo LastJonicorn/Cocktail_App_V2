@@ -83,7 +83,16 @@
 <ul>
   <li> Searched drinks can be added to favorites </li>
   <li> Search by ingredient works </li>
-  <li> <h3> 1st build </h3> </br> Opens on Android device. Forced portrait. Scrolling feels a bit slow. </li>
+  <li> 
+    <h3> 1st build </h3> 
+    </br> 
+    <ul> 
+      <li> Opens on Android device </li>
+      <li> Forced portrait mode works </li>
+      <li> Scrolling feels slow </li>
+      <li> Favorites stay in memory even after closing and reopening app </li>
+    </ul> 
+  </li>
 </ul>
 
 </div>
