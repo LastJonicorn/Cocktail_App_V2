@@ -13,6 +13,9 @@ public class DetailPanelScript : MonoBehaviour
     [Header("Ingredient and Measurement Pairs")]
     public GameObject[] ingredientPairs;
 
+    // Reference to AddFavorite script
+    public AddFavorite addFavoriteScript;
+
     public void DisplayDrinkDetails(Drink drink)
     {
         // Update UI elements with drink details
@@ -36,6 +39,12 @@ public class DetailPanelScript : MonoBehaviour
             drink.strMeasure9, drink.strMeasure10, drink.strMeasure11, drink.strMeasure12,
             drink.strMeasure13, drink.strMeasure14, drink.strMeasure15
         });
+
+        // Set current drink in AddFavorite script
+        if (addFavoriteScript != null)
+        {
+            addFavoriteScript.SetCurrentDrink(drink);
+        }
     }
 
     private void AssignText(GameObject[] ingredientPairs, string[] ingredients, string[] measurements)
