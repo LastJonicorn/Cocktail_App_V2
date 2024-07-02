@@ -85,7 +85,6 @@
   <li> Search by ingredient works </li>
   <li> 
     <h3> 1st build </h3> 
-    </br> 
     <ul> 
       <li> Opens on Android device </li>
       <li> Forced portrait mode works </li>
