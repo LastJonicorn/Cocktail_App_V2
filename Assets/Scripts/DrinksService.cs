@@ -23,33 +23,65 @@ public class APIRequest : MonoBehaviour
 
     void Start()
     {
-        LoadConfig();
-        StartCoroutine(GetRequest(apiUrl));
+        StartCoroutine(LoadConfig());
         refreshButton.onClick.AddListener(RefreshAPI);
     }
 
-    void LoadConfig()
+    IEnumerator LoadConfig()
     {
         string configPath = Path.Combine(Application.streamingAssetsPath, "Config.txt");
-        if (File.Exists(configPath))
+        Debug.Log("Config path: " + configPath);
+
+        string configJson = null;
+
+        if (configPath.Contains("://") || configPath.Contains(":///"))
+        {
+            using (UnityWebRequest webRequest = UnityWebRequest.Get(configPath))
+            {
+                yield return webRequest.SendWebRequest();
+                if (webRequest.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogError("Error reading config file: " + webRequest.error);
+                }
+                else
+                {
+                    configJson = webRequest.downloadHandler.text;
+                }
+            }
+        }
+        else
         {
             try
             {
-                string configJson = File.ReadAllText(configPath);
+                configJson = File.ReadAllText(configPath);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("Error reading config file: " + e.Message);
+            }
+        }
+
+        if (!string.IsNullOrEmpty(configJson))
+        {
+            try
+            {
                 Config config = JsonUtility.FromJson<Config>(configJson);
                 apiUrl = config.apiUrl + "random.php";
             }
             catch (System.Exception e)
             {
-                Debug.LogError("Error reading config file: " + e.Message);
+                Debug.LogError("Error parsing config file: " + e.Message);
                 apiUrl = "https://default.api.url";
             }
         }
         else
         {
-            Debug.LogError("Config file not found. Using default API URL.");
+            Debug.LogError("Config file not found or empty. Using default API URL.");
             apiUrl = "https://default.api.url";
         }
+
+        Debug.Log("API URL: " + apiUrl);
+        StartCoroutine(GetRequest(apiUrl));
     }
 
     IEnumerator GetRequest(string url)
@@ -82,7 +114,6 @@ public class APIRequest : MonoBehaviour
                 currentDrink = drinkResponse.drinks[0];
                 UpdateDrinkUI(currentDrink);
 
-                // Set current drink in the AddToFavorites script
                 if (addToFavoritesScript != null)
                 {
                     addToFavoritesScript.SetCurrentDrink(currentDrink);
@@ -174,7 +205,6 @@ public class APIRequest : MonoBehaviour
             pair.SetActive(false);
         }
 
-        // Scroll to top
         if (scrollRect != null)
         {
             scrollRect.verticalNormalizedPosition = 1f;

@@ -8,7 +8,10 @@ using System.IO;
 public class DrinkSearch : MonoBehaviour
 {
     private string apiUrl;
+
     public TMP_InputField searchInput; // Reference to the text input field
+    public Button searchByNameButton; // Reference to the search by name button
+    public Button searchByIngredientButton; // Reference to the search by ingredient button
 
     public Transform contentPanel; // Parent panel to hold the drink entries
     public GameObject drinkEntryPrefab; // Prefab for individual drink entries
@@ -16,39 +19,80 @@ public class DrinkSearch : MonoBehaviour
     public GameObject searchDetailPanel; // Reference to the panel to open
     public DetailPanelScript detailPanelScript; // Reference to DetailPanelScript attached to searchDetailPanel
 
+    public GameObject loadingPanel; // Reference to the loading panel
+
     void Start()
     {
         LoadConfig();
         searchInput.onValueChanged.AddListener(delegate { SearchForDrinks(searchInput.text); });
+        searchByNameButton.onClick.AddListener(SearchByName);
+        searchByIngredientButton.onClick.AddListener(SearchByIngredient);
         SearchForDrinks("");
     }
 
     void LoadConfig()
     {
         string configPath = Path.Combine(Application.streamingAssetsPath, "Config.txt");
-        if (File.Exists(configPath))
+
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            StartCoroutine(LoadConfigAndroid(configPath));
+        }
+        else
+        {
+            if (File.Exists(configPath))
+            {
+                try
+                {
+                    string configJson = File.ReadAllText(configPath);
+                    Config config = JsonUtility.FromJson<Config>(configJson);
+                    apiUrl = config.apiUrl + "/search.php?s=";
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError("Error reading config file: " + e.Message);
+                    apiUrl = "https://default.api.url/search.php?s=";
+                }
+            }
+            else
+            {
+                Debug.LogError("Config file not found. Using default API URL.");
+                apiUrl = "https://default.api.url/search.php?s=";
+            }
+        }
+    }
+
+    IEnumerator LoadConfigAndroid(string configPath)
+    {
+        UnityWebRequest request = UnityWebRequest.Get(configPath);
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+        {
+            Debug.LogError("Error reading config file: " + request.error);
+            apiUrl = "https://default.api.url/search.php?s=";
+        }
+        else
         {
             try
             {
-                string configJson = File.ReadAllText(configPath);
+                string configJson = request.downloadHandler.text;
                 Config config = JsonUtility.FromJson<Config>(configJson);
                 apiUrl = config.apiUrl + "/search.php?s=";
             }
             catch (System.Exception e)
             {
-                Debug.LogError("Error reading config file: " + e.Message);
-                apiUrl = "https://default.api.url";
+                Debug.LogError("Error parsing config file: " + e.Message);
+                apiUrl = "https://default.api.url/search.php?s=";
             }
-        }
-        else
-        {
-            Debug.LogError("Config file not found. Using default API URL.");
-            apiUrl = "https://default.api.url";
         }
     }
 
+
     IEnumerator GetRequest(string url)
     {
+        ShowLoadingIndicator(true);
+
         using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
         {
             yield return webRequest.SendWebRequest();
@@ -62,6 +106,8 @@ public class DrinkSearch : MonoBehaviour
                 HandleResponse(webRequest.downloadHandler.text);
             }
         }
+
+        ShowLoadingIndicator(false);
     }
 
     void HandleResponse(string responseTextContent)
@@ -125,7 +171,6 @@ public class DrinkSearch : MonoBehaviour
         }
     }
 
-
     void OnDrinkEntryClicked(Drink drink)
     {
         Debug.Log("Drink entry clicked: " + drink.strDrink);
@@ -148,8 +193,6 @@ public class DrinkSearch : MonoBehaviour
             Debug.LogError("searchDetailPanel is not assigned.");
         }
     }
-
-
 
     void ClearDrinks()
     {
@@ -185,5 +228,37 @@ public class DrinkSearch : MonoBehaviour
     {
         string searchUrl = apiUrl + searchTerm;
         StartCoroutine(GetRequest(searchUrl));
+    }
+
+    public void SearchByIngredient()
+    {
+        string searchTerm = searchInput.text; // Use the existing search input field
+        string searchUrl = apiUrl + "i=" + searchTerm;
+        StartCoroutine(GetRequest(searchUrl));
+
+        // Clear the search input field
+        searchInput.text = "";
+    }
+
+    public void SearchByName()
+    {
+        string searchTerm = searchInput.text; // Use the existing search input field
+        string searchUrl = apiUrl + "s=" + searchTerm;
+        StartCoroutine(GetRequest(searchUrl));
+
+        // Clear the search input field
+        searchInput.text = "";
+    }
+
+    void ShowLoadingIndicator(bool show)
+    {
+        if (loadingPanel != null)
+        {
+            loadingPanel.SetActive(show);
+        }
+        else
+        {
+            Debug.LogError("Loading panel is not assigned.");
+        }
     }
 }
