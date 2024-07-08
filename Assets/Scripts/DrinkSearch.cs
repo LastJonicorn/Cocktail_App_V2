@@ -17,26 +17,55 @@ public class DrinkSearch : MonoBehaviour
     public GameObject drinkEntryPrefab; // Prefab for individual drink entries
 
     public GameObject searchDetailPanel; // Reference to the panel to open
+    public GameObject searchScreen;
     public DetailPanelScript detailPanelScript; // Reference to DetailPanelScript attached to searchDetailPanel
 
     public GameObject loadingPanel; // Reference to the loading panel
 
     void Start()
     {
-        LoadConfig();
+        StartCoroutine(LoadConfigAndInitialize());
+    }
+
+    IEnumerator LoadConfigAndInitialize()
+    {
+        yield return LoadConfig();
+
         searchInput.onValueChanged.AddListener(delegate { SearchForDrinks(searchInput.text); });
         searchByNameButton.onClick.AddListener(SearchByName);
         searchByIngredientButton.onClick.AddListener(SearchByIngredient);
+
+        // Perform an initial search with an empty string to display all drinks
         SearchForDrinks("");
     }
 
-    void LoadConfig()
+    IEnumerator LoadConfig()
     {
         string configPath = Path.Combine(Application.streamingAssetsPath, "Config.txt");
 
         if (Application.platform == RuntimePlatform.Android)
         {
-            StartCoroutine(LoadConfigAndroid(configPath));
+            UnityWebRequest request = UnityWebRequest.Get(configPath);
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Debug.LogError("Error reading config file: " + request.error);
+                apiUrl = "https://default.api.url/search.php?";
+            }
+            else
+            {
+                try
+                {
+                    string configJson = request.downloadHandler.text;
+                    apiUrl = JsonUtility.FromJson<Config>(configJson).apiUrl + "/search.php?";
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError("Error parsing config file: " + e.Message);
+                    apiUrl = "https://default.api.url/search.php?";
+                }
+            }
         }
         else
         {
@@ -45,49 +74,21 @@ public class DrinkSearch : MonoBehaviour
                 try
                 {
                     string configJson = File.ReadAllText(configPath);
-                    Config config = JsonUtility.FromJson<Config>(configJson);
-                    apiUrl = config.apiUrl + "/search.php?s=";
+                    apiUrl = JsonUtility.FromJson<Config>(configJson).apiUrl + "/search.php?";
                 }
                 catch (System.Exception e)
                 {
                     Debug.LogError("Error reading config file: " + e.Message);
-                    apiUrl = "https://default.api.url/search.php?s=";
+                    apiUrl = "https://default.api.url/search.php?";
                 }
             }
             else
             {
                 Debug.LogError("Config file not found. Using default API URL.");
-                apiUrl = "https://default.api.url/search.php?s=";
+                apiUrl = "https://default.api.url/search.php?";
             }
         }
     }
-
-    IEnumerator LoadConfigAndroid(string configPath)
-    {
-        UnityWebRequest request = UnityWebRequest.Get(configPath);
-        yield return request.SendWebRequest();
-
-        if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
-        {
-            Debug.LogError("Error reading config file: " + request.error);
-            apiUrl = "https://default.api.url/search.php?s=";
-        }
-        else
-        {
-            try
-            {
-                string configJson = request.downloadHandler.text;
-                Config config = JsonUtility.FromJson<Config>(configJson);
-                apiUrl = config.apiUrl + "/search.php?s=";
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogError("Error parsing config file: " + e.Message);
-                apiUrl = "https://default.api.url/search.php?s=";
-            }
-        }
-    }
-
 
     IEnumerator GetRequest(string url)
     {
@@ -178,6 +179,7 @@ public class DrinkSearch : MonoBehaviour
         if (searchDetailPanel != null)
         {
             searchDetailPanel.SetActive(true);
+            searchScreen.SetActive(false);
             DetailPanelScript detailPanelScript = searchDetailPanel.GetComponent<DetailPanelScript>();
             if (detailPanelScript != null)
             {
@@ -226,7 +228,7 @@ public class DrinkSearch : MonoBehaviour
 
     public void SearchForDrinks(string searchTerm)
     {
-        string searchUrl = apiUrl + searchTerm;
+        string searchUrl = string.IsNullOrEmpty(searchTerm) ? apiUrl + "s=" : apiUrl + "s=" + searchTerm;
         StartCoroutine(GetRequest(searchUrl));
     }
 

@@ -435,7 +435,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -128}
-  m_SizeDelta: {x: 1066, y: 1369.1}
+  m_SizeDelta: {x: 974.04, y: 1369.1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &100949394
 MonoBehaviour:
@@ -456,7 +456,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 2
   m_Viewport: {fileID: 316880861}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 0}
@@ -1609,7 +1609,7 @@ MonoBehaviour:
   favLiquorScreen: {fileID: 207557456}
   searchScreen: {fileID: 1357996388}
   randomScreen: {fileID: 3516650216301300151}
-  favoritesScreen: {fileID: 935103768}
+  favoritesScreen: {fileID: 0}
   favoritesDetailScreen: {fileID: 402378259}
   menuPanel: {fileID: 309058028}
   cameraController: {fileID: 825228862}
@@ -2042,14 +2042,14 @@ RectTransform:
   - {fileID: 1357996390}
   - {fileID: 8189324150961747953}
   - {fileID: 935103769}
+  - {fileID: 402378260}
+  - {fileID: 1947502072}
   - {fileID: 140301052}
   - {fileID: 309058031}
   - {fileID: 1730386934}
   - {fileID: 560488073}
   - {fileID: 235948620}
   - {fileID: 1635865255}
-  - {fileID: 402378260}
-  - {fileID: 1947502072}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -2070,6 +2070,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   addToFavoritesButton: {fileID: 7349111344040769267}
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
+  inFavoritesColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!1 &267155677
 GameObject:
   m_ObjectHideFlags: 0
@@ -6089,6 +6091,7 @@ MonoBehaviour:
   favoriteItemPrefab: {fileID: 7027480612348874946, guid: bc627dcfc725571479fbb9965397962d, type: 3}
   favoritesContainer: {fileID: 259476262}
   favoriteDetailPanel: {fileID: 402378259}
+  favoriteScreen: {fileID: 935103768}
 --- !u!4 &631506895
 Transform:
   m_ObjectHideFlags: 0
@@ -8301,6 +8304,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   addToFavoritesButton: {fileID: 1773270343}
+  defaultColor: {r: 0.8039216, g: 0.8039216, b: 0.8039216, a: 1}
+  inFavoritesColor: {r: 1, g: 0.84050083, b: 0, a: 1}
 --- !u!1 &769313379
 GameObject:
   m_ObjectHideFlags: 0
@@ -8493,7 +8498,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 2
   m_Viewport: {fileID: 1247176460}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 0}
@@ -9184,7 +9189,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 2
   m_Viewport: {fileID: 346814691}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 0}
@@ -13949,6 +13954,7 @@ MonoBehaviour:
   contentPanel: {fileID: 79753253}
   drinkEntryPrefab: {fileID: 7027480612348874946, guid: d7a1037c3564ba94ab6c253e6aa0f764, type: 3}
   searchDetailPanel: {fileID: 1947502071}
+  searchScreen: {fileID: 1357996388}
   detailPanelScript: {fileID: 1947502073}
   loadingPanel: {fileID: 1045391907}
 --- !u!1 &1359637735
@@ -21478,6 +21484,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: YourDrinks
       objectReference: {fileID: 0}
+    - target: {fileID: 7345167940867875265, guid: cad148b09b2979546953463959cebdaa, type: 3}
+      propertyPath: m_ScrollSensitivity
+      value: 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -23154,7 +23164,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 2
   m_Viewport: {fileID: 9105993575040644659}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 0}
@@ -25058,6 +25068,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5181220652468798754, guid: aa681426bc0d27a4a8b8e1863a8756f4, type: 3}
+      propertyPath: m_ScrollSensitivity
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6032671032695227844, guid: aa681426bc0d27a4a8b8e1863a8756f4, type: 3}
       propertyPath: m_Name
       value: AddDrink
@@ -25411,6 +25425,10 @@ PrefabInstance:
     - target: {fileID: 542463290131149351, guid: 271dfc6050acef4489fb308eac147f9c, type: 3}
       propertyPath: m_Name
       value: FavoriteLiquors
+      objectReference: {fileID: 0}
+    - target: {fileID: 1558671151445118667, guid: 271dfc6050acef4489fb308eac147f9c, type: 3}
+      propertyPath: m_ScrollSensitivity
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5915745323960593100, guid: 271dfc6050acef4489fb308eac147f9c, type: 3}
       propertyPath: m_Pivot.x
@@ -26033,6 +26051,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   addToFavoritesButton: {fileID: 7349111344040769267}
+  defaultColor: {r: 0.8018868, g: 0.8018868, b: 0.8018868, a: 1}
+  inFavoritesColor: {r: 1, g: 0.84313726, b: 0, a: 1}
 --- !u!222 &7491391093900711594
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -26507,6 +26527,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3169090682395669579, guid: 7875013d890b83e4099e39d661cbbfd0, type: 3}
+      propertyPath: m_ScrollSensitivity
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 3287781719754696821, guid: 7875013d890b83e4099e39d661cbbfd0, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -26839,6 +26863,10 @@ PrefabInstance:
     - target: {fileID: 8311990863134067087, guid: 88ce5a5bffadbf34c8ab209389e11a64, type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9019256417728788131, guid: 88ce5a5bffadbf34c8ab209389e11a64, type: 3}
+      propertyPath: m_ScrollSensitivity
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

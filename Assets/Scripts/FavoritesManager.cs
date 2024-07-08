@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -13,6 +14,7 @@ public class FavoritesManager : MonoBehaviour
     public GameObject favoriteItemPrefab;
     public Transform favoritesContainer;
     public GameObject favoriteDetailPanel; // Reference to the panel to open
+    public GameObject favoriteScreen;
 
     public static event Action<Drink> OnFavoriteClicked;
 
@@ -44,6 +46,11 @@ public class FavoritesManager : MonoBehaviour
         {
             Debug.Log("Drink already in favorites: " + drink.strDrink);
         }
+    }
+
+    public bool IsFavorite(string drinkName)
+    {
+        return favoriteDrinks.Any(drink => drink.strDrink == drinkName);
     }
 
     IEnumerator DisplayFavorite(Drink drink)
@@ -198,6 +205,7 @@ public class FavoritesManager : MonoBehaviour
         if (favoriteDetailPanel != null)
         {
             favoriteDetailPanel.SetActive(true);
+            favoriteScreen.SetActive(false);
             // Pass the selected drink to the detail panel script
             DetailPanelScript detailPanelScript = favoriteDetailPanel.GetComponent<DetailPanelScript>();
             if (detailPanelScript != null)
