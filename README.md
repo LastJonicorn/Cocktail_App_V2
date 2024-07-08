@@ -111,6 +111,8 @@
   <h1> TODOS </h1>
 <ul>
   <li> Add your own drinks (Name, Image, Ingredients, Measurements & Instructions) WIP </li>
+  <li> Search results and favorites are aligned weirdly (drink name canät fit on screen) </li>
+  <li> The DetailPanels don't close when switching screens </li>
   <li> Add your favorite liquors with image (Maybe...) </li>
 </ul>
     
