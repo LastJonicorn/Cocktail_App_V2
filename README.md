@@ -98,11 +98,21 @@
 
 </div>
 
+<h1> 8.7.2024 </h1>
+<ul>
+  <li> Clicking favorite or searched drink closes the screen below so the UI is cleaner </li>
+  <li> Added trashCan icon for deleting favorites </li>
+  <li> There is now an initial search that fires when switching search by name or ingredient so there are always some drinks displayed </li>
+  <li> AddToFavorites button tracks if the current drink is already in favorites and denys a duplicate favorite from being added + Is colored different if the drink is already in favorites </li>
+</ul>
+
+</div>
+
   <h1> TODOS </h1>
 <ul>
-  <li> Remove favorites </li>
-  <li> Search drinks WIP </li>
   <li> Add your own drinks (Name, Image, Ingredients, Measurements & Instructions) WIP </li>
+  <li> Search results and favorites are aligned weirdly (drink name canät fit on screen) </li>
+  <li> The DetailPanels don't close when switching screens </li>
   <li> Add your favorite liquors with image (Maybe...) </li>
 </ul>
     
