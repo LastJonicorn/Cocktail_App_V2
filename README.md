@@ -108,6 +108,12 @@
 
 </div>
 
+<h1> 10.7.2024 </h1>
+<ul>
+  <li> Fixed search by ingredient </li>
+</ul>
+
+</div>
   <h1> TODOS </h1>
 <ul>
   <li> Add your own drinks (Name, Image, Ingredients, Measurements & Instructions) WIP </li>
