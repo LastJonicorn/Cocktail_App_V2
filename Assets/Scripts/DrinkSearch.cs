@@ -10,11 +10,12 @@ public class DrinkSearch : MonoBehaviour
     private string apiUrl;
 
     public TMP_InputField searchInput; // Reference to the text input field
-    public Button searchByNameButton; // Reference to the search by name button
-    public Button searchByIngredientButton; // Reference to the search by ingredient button
 
     public Transform contentPanel; // Parent panel to hold the drink entries
     public GameObject drinkEntryPrefab; // Prefab for individual drink entries
+
+    public string searchType;
+    public string urlAddition;
 
     public GameObject searchDetailPanel; // Reference to the panel to open
     public GameObject searchScreen;
@@ -32,8 +33,6 @@ public class DrinkSearch : MonoBehaviour
         yield return LoadConfig();
 
         searchInput.onValueChanged.AddListener(delegate { SearchForDrinks(searchInput.text); });
-        searchByNameButton.onClick.AddListener(SearchByName);
-        searchByIngredientButton.onClick.AddListener(SearchByIngredient);
 
         // Perform an initial search with an empty string to display all drinks
         SearchForDrinks("");
@@ -58,7 +57,7 @@ public class DrinkSearch : MonoBehaviour
                 try
                 {
                     string configJson = request.downloadHandler.text;
-                    apiUrl = JsonUtility.FromJson<Config>(configJson).apiUrl + "/search.php?";
+                    apiUrl = JsonUtility.FromJson<Config>(configJson).apiUrl + urlAddition;
                 }
                 catch (System.Exception e)
                 {
@@ -74,7 +73,7 @@ public class DrinkSearch : MonoBehaviour
                 try
                 {
                     string configJson = File.ReadAllText(configPath);
-                    apiUrl = JsonUtility.FromJson<Config>(configJson).apiUrl + "/search.php?";
+                    apiUrl = JsonUtility.FromJson<Config>(configJson).apiUrl + urlAddition;
                 }
                 catch (System.Exception e)
                 {
@@ -172,14 +171,41 @@ public class DrinkSearch : MonoBehaviour
         }
     }
 
-    void OnDrinkEntryClicked(Drink drink)
+    IEnumerator SearchDrinkById(string idDrink)
     {
-        Debug.Log("Drink entry clicked: " + drink.strDrink);
+        string url = $"https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i={idDrink}";
+        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        {
+            yield return request.SendWebRequest();
 
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Debug.LogError($"Error fetching drink details: {request.error}");
+            }
+            else
+            {
+                string jsonResponse = request.downloadHandler.text;
+                DrinkResponse drinkResponse = JsonUtility.FromJson<DrinkResponse>(jsonResponse);
+
+                if (drinkResponse.drinks != null && drinkResponse.drinks.Length > 0)
+                {
+                    Drink retrievedDrink = drinkResponse.drinks[0];
+                    DisplayRetrievedDrinkDetails(retrievedDrink);
+                }
+                else
+                {
+                    Debug.LogError("No drinks found in the response.");
+                }
+            }
+        }
+    }
+    void DisplayRetrievedDrinkDetails(Drink drink)
+    {
         if (searchDetailPanel != null)
         {
             searchDetailPanel.SetActive(true);
             searchScreen.SetActive(false);
+
             DetailPanelScript detailPanelScript = searchDetailPanel.GetComponent<DetailPanelScript>();
             if (detailPanelScript != null)
             {
@@ -195,6 +221,38 @@ public class DrinkSearch : MonoBehaviour
             Debug.LogError("searchDetailPanel is not assigned.");
         }
     }
+
+
+    void OnDrinkEntryClicked(Drink drink)
+    {
+        Debug.Log("Drink entry clicked: " + drink.strDrink + drink.strIngredient1 + drink.strMeasure1 + drink.strInstructions + drink.idDrink);
+
+        if (urlAddition == "filter.php?")
+        {
+            // Perform search by drink ID
+            StartCoroutine(SearchDrinkById(drink.idDrink));
+        }
+        else if (searchDetailPanel != null)
+        {
+            searchDetailPanel.SetActive(true);
+            searchScreen.SetActive(false);
+
+            DetailPanelScript detailPanelScript = searchDetailPanel.GetComponent<DetailPanelScript>();
+            if (detailPanelScript != null)
+            {
+                detailPanelScript.DisplayDrinkDetails(drink);
+            }
+            else
+            {
+                Debug.LogError("DetailPanelScript component not found on searchDetailPanel.");
+            }
+        }
+        else
+        {
+            Debug.LogError("searchDetailPanel is not assigned.");
+        }
+    }
+
 
     void ClearDrinks()
     {
@@ -228,28 +286,8 @@ public class DrinkSearch : MonoBehaviour
 
     public void SearchForDrinks(string searchTerm)
     {
-        string searchUrl = string.IsNullOrEmpty(searchTerm) ? apiUrl + "s=" : apiUrl + "s=" + searchTerm;
+        string searchUrl = string.IsNullOrEmpty(searchTerm) ? apiUrl + searchType : apiUrl + searchType + searchTerm;
         StartCoroutine(GetRequest(searchUrl));
-    }
-
-    public void SearchByIngredient()
-    {
-        string searchTerm = searchInput.text; // Use the existing search input field
-        string searchUrl = apiUrl + "i=" + searchTerm;
-        StartCoroutine(GetRequest(searchUrl));
-
-        // Clear the search input field
-        searchInput.text = "";
-    }
-
-    public void SearchByName()
-    {
-        string searchTerm = searchInput.text; // Use the existing search input field
-        string searchUrl = apiUrl + "s=" + searchTerm;
-        StartCoroutine(GetRequest(searchUrl));
-
-        // Clear the search input field
-        searchInput.text = "";
     }
 
     void ShowLoadingIndicator(bool show)
