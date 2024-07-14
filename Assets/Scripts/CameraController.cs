@@ -9,8 +9,14 @@ public class CameraController : MonoBehaviour
     private WebCamTexture webCamTexture;
     private string picturePath;
 
-    void Start()
+    public void InitializeCamera()
     {
+        if (webCamTexture != null)
+        {
+            webCamTexture.Stop();
+            webCamTexture = null;
+        }
+
         webCamTexture = new WebCamTexture(500, 500);
         cameraRawImage.texture = webCamTexture;
         cameraRawImage.material.mainTexture = webCamTexture;
@@ -20,10 +26,10 @@ public class CameraController : MonoBehaviour
 
         transform.Rotate(0, 0, -90); // Adjust the axis as per your requirement
 
-        StartCoroutine(InitializeCamera());
+        StartCoroutine(CheckCameraInitialization());
     }
 
-    public IEnumerator InitializeCamera()
+    private IEnumerator CheckCameraInitialization()
     {
         while (!webCamTexture.didUpdateThisFrame)
         {
@@ -40,11 +46,12 @@ public class CameraController : MonoBehaviour
         }
     }
 
-    void OnDisable()
+    public void StopCamera()
     {
         if (webCamTexture != null)
         {
             webCamTexture.Stop();
+            webCamTexture = null;
         }
 
         if (cameraRawImage != null)
@@ -56,12 +63,25 @@ public class CameraController : MonoBehaviour
 
     public void TakePicture()
     {
-        StartCoroutine(CapturePhoto());
+        if (webCamTexture != null && webCamTexture.isPlaying)
+        {
+            StartCoroutine(CapturePhoto());
+        }
+        else
+        {
+            Debug.LogError("Webcam is not running, cannot take picture.");
+        }
     }
 
     private IEnumerator CapturePhoto()
     {
         yield return new WaitForEndOfFrame();
+
+        if (webCamTexture == null || !webCamTexture.isPlaying)
+        {
+            Debug.LogError("Webcam is not running, cannot capture photo.");
+            yield break;
+        }
 
         Texture2D photo = new Texture2D(webCamTexture.width, webCamTexture.height);
         photo.SetPixels(webCamTexture.GetPixels());
@@ -98,5 +118,10 @@ public class CameraController : MonoBehaviour
     public string GetPicturePath()
     {
         return picturePath;
+    }
+
+    public void ReinitializeCamera()
+    {
+        InitializeCamera();
     }
 }

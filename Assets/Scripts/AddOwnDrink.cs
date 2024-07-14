@@ -55,6 +55,21 @@ public class AddOwnDrink : MonoBehaviour
         {
             LoadPicture(picturePath);
         }
+
+        // Reinitialize camera feed
+        if (cameraController != null)
+        {
+            cameraController.ReinitializeCamera();
+        }
+    }
+
+    private void OnDisable()
+    {
+        // Stop camera feed
+        if (cameraController != null)
+        {
+            cameraController.StopCamera();
+        }
     }
 
     private void LoadPicture(string path)
@@ -249,7 +264,6 @@ public class AddOwnDrink : MonoBehaviour
         // Clear feedback text
         feedbackText.text = "";
     }
-
 
     public List<OwnDrink> LoadOwnDrinks()
     {
