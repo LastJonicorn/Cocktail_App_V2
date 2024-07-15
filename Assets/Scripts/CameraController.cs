@@ -90,8 +90,10 @@ public class CameraController : MonoBehaviour
         Texture2D squarePhoto = ResizeTexture(photo, 500, 500);
 
         byte[] bytes = squarePhoto.EncodeToPNG();
-        picturePath = Path.Combine(Application.persistentDataPath, System.Guid.NewGuid().ToString() + ".png");
-        File.WriteAllBytes(picturePath, bytes);
+        string newPicturePath = Path.Combine(Application.persistentDataPath, System.Guid.NewGuid().ToString() + ".png");
+        File.WriteAllBytes(newPicturePath, bytes);
+
+        picturePath = newPicturePath;
 
         Debug.Log("Photo saved to: " + picturePath);
 

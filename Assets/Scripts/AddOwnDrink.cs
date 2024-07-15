@@ -72,31 +72,6 @@ public class AddOwnDrink : MonoBehaviour
         }
     }
 
-    private void LoadPicture(string path)
-    {
-        if (System.IO.File.Exists(path))
-        {
-            byte[] fileData = System.IO.File.ReadAllBytes(path);
-            Texture2D texture = new Texture2D(2, 2);
-            texture.LoadImage(fileData);
-
-            if (rawImage != null)
-            {
-                rawImage.texture = texture;
-                rawImage.rectTransform.sizeDelta = new Vector2(texture.width, texture.height);
-                rawImage.SetNativeSize();
-            }
-            else
-            {
-                Debug.LogWarning("RawImage is null when trying to load picture.");
-            }
-        }
-        else
-        {
-            Debug.LogError("Failed to load picture: File does not exist at path: " + path);
-        }
-    }
-
     private void RequestPermissionsAndTakePicture()
     {
         if (RequestPermissions())
@@ -137,6 +112,11 @@ public class AddOwnDrink : MonoBehaviour
     {
         if (cameraController != null)
         {
+            // Clear the previous picture path before taking a new picture
+            picturePath = "";
+            rawImage.texture = null;
+            rawImage.rectTransform.sizeDelta = new Vector2(500, 500); // Maintain the size
+
             cameraController.TakePicture();
             StartCoroutine(UpdatePicturePath());
         }
@@ -148,6 +128,9 @@ public class AddOwnDrink : MonoBehaviour
 
     private IEnumerator UpdatePicturePath()
     {
+        // Wait a bit to ensure the picture is saved correctly
+        yield return new WaitForSeconds(0.5f);
+
         // Ensure picture is saved correctly
         while (string.IsNullOrEmpty(cameraController.GetPicturePath()))
         {
@@ -161,6 +144,34 @@ public class AddOwnDrink : MonoBehaviour
             LoadPicture(picturePath);
         }
     }
+
+    private void LoadPicture(string path)
+    {
+        if (System.IO.File.Exists(path))
+        {
+            byte[] fileData = System.IO.File.ReadAllBytes(path);
+            Texture2D texture = new Texture2D(2, 2);
+            texture.LoadImage(fileData);
+
+            if (rawImage != null)
+            {
+                rawImage.texture = texture;
+                rawImage.rectTransform.sizeDelta = new Vector2(500, 500);
+                rawImage.SetNativeSize();
+            }
+            else
+            {
+                Debug.LogWarning("RawImage is null when trying to load picture.");
+            }
+        }
+        else
+        {
+            Debug.LogError("Failed to load picture: File does not exist at path: " + path);
+        }
+    }
+
+
+
 
     public void ActivateNextIngredientMeasurementPair()
     {
@@ -244,26 +255,56 @@ public class AddOwnDrink : MonoBehaviour
         drinkNameInput.text = "";
         instructionsInput.text = "";
 
-        // Deactivate all ingredient pairs and reset active count
+        // Deactivate all ingredient pairs
         foreach (GameObject pair in ingredientMeasurementPairs)
         {
             pair.SetActive(false);
         }
-        activePairsCount = 0;
 
-        // Clear the picture
-        if (rawImage != null)
+        // Activate the first ingredient pair
+        if (ingredientMeasurementPairs.Count > 0)
         {
-            rawImage.texture = null;
-            rawImage.rectTransform.sizeDelta = Vector2.zero;
+            ingredientMeasurementPairs[0].SetActive(true);
+            activePairsCount = 1;
+        }
+        else
+        {
+            activePairsCount = 0;
+        }
+
+        // Clear the input fields of the first ingredient pair
+        if (activePairsCount > 0)
+        {
+            TMP_InputField ingredientInput = ingredientMeasurementPairs[0].transform.Find("IngredientInput").GetComponent<TMP_InputField>();
+            TMP_InputField measurementInput = ingredientMeasurementPairs[0].transform.Find("MeasurementInput").GetComponent<TMP_InputField>();
+            ingredientInput.text = "";
+            measurementInput.text = "";
         }
 
         // Reset the picture path
         picturePath = "";
 
+        // Ensure the rawImage is visible and set its size to 500x500
+        if (rawImage != null)
+        {
+            if (!string.IsNullOrEmpty(picturePath) && System.IO.File.Exists(picturePath))
+            {
+                LoadPicture(picturePath);
+            }
+            else
+            {
+                rawImage.texture = null; // Or set it to a default texture if you have one
+            }
+
+            // Set the size of the rawImage
+            rawImage.rectTransform.sizeDelta = new Vector2(500, 500);
+        }
+
         // Clear feedback text
         feedbackText.text = "";
     }
+
+
 
     public List<OwnDrink> LoadOwnDrinks()
     {
