@@ -114,11 +114,20 @@
 </ul>
 
 </div>
+
+<h1> 15.7.2024 </h1>
+<ul>
+  <li> Adding own drink works (Displays the drink picture and name in Your Drinks screen) </li>
+  <li> After saving your drink the screen refreshes itself successfully so you can add another drink right away (Testing needed) </li>
+</ul>
+
+</div>
   <h1> TODOS </h1>
 <ul>
-  <li> Add your own drinks (Name, Image, Ingredients, Measurements & Instructions) WIP </li>
-  <li> Search results and favorites are aligned weirdly (drink name canät fit on screen) </li>
-  <li> The DetailPanels don't close when switching screens </li>
+  <li> Open Detail Panel for your own drinks </li>
+  <li> Testing </li>
+  <li> New pictures in place of ugly buttons </li>
+  <li> Fonts </li>
   <li> Add your favorite liquors with image (Maybe...) </li>
 </ul>
     
