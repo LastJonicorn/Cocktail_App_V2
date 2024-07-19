@@ -30,6 +30,7 @@ public class ToggleElementOff : MonoBehaviour
 
     public GameObject searchDetailPanel;
     public GameObject favoriteDetailPanel;
+    public GameObject ownDetailPanel;
 
     void Start()
     {
@@ -45,6 +46,7 @@ public class ToggleElementOff : MonoBehaviour
         toggleButton.onClick.AddListener(ToggleNinth);
         toggleButton.onClick.AddListener(ToggleTenth);
         toggleButton.onClick.AddListener(ToggleEleventh);
+        toggleButton.onClick.AddListener(ToggleTwelwth);
 
     }
 
@@ -134,4 +136,12 @@ public class ToggleElementOff : MonoBehaviour
             favoriteDetailPanel.SetActive(false);
         }
     }
+    void ToggleTwelwth()
+    {
+        if (ownDetailPanel != null)
+        {
+            ownDetailPanel.SetActive(false);
+        }
+    }
+
 }

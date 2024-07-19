@@ -10,7 +10,7 @@ public class OwnDrink
 {
     public string drinkName;
     public string picturePath;
-    public List<Ingredient> ingredients;
+    public List<Ingredient> ingredients = new List<Ingredient>(); // Initialize list
     public string instructions;
 }
 
@@ -47,6 +47,7 @@ public class AddOwnDrink : MonoBehaviour
 
         // Request necessary permissions at startup
         RequestPermissions();
+
     }
 
     private void OnEnable()
@@ -170,15 +171,17 @@ public class AddOwnDrink : MonoBehaviour
         }
     }
 
-
-
-
     public void ActivateNextIngredientMeasurementPair()
     {
+        Debug.Log($"ActivateNextIngredientMeasurementPair called. Current active pairs count: {activePairsCount}");
+
         if (activePairsCount < ingredientMeasurementPairs.Count)
         {
+            // Activate the next pair
             ingredientMeasurementPairs[activePairsCount].SetActive(true);
             activePairsCount++;
+
+            Debug.Log($"Activated ingredient pair {activePairsCount - 1}");
         }
         else
         {
@@ -188,6 +191,8 @@ public class AddOwnDrink : MonoBehaviour
 
     public void SaveOwnDrink()
     {
+        Debug.Log("SaveOwnDrink called");
+
         string drinkName = drinkNameInput.text;
         if (string.IsNullOrEmpty(drinkName))
         {
@@ -198,7 +203,7 @@ public class AddOwnDrink : MonoBehaviour
         string instructions = instructionsInput.text;
 
         ingredients.Clear();
-        for (int i = 0; i < activePairsCount; i++)
+        for (int i = 0; i <= activePairsCount; i++)
         {
             GameObject pair = ingredientMeasurementPairs[i];
             TMP_InputField ingredientInput = pair.transform.Find("IngredientInput").GetComponent<TMP_InputField>();
@@ -206,6 +211,8 @@ public class AddOwnDrink : MonoBehaviour
 
             string ingredientName = ingredientInput.text;
             string measurement = measurementInput.text;
+
+            Debug.Log($"Pair {i}: Ingredient = {ingredientName}, Measurement = {measurement}");
 
             if (string.IsNullOrEmpty(ingredientName))
             {
@@ -249,8 +256,11 @@ public class AddOwnDrink : MonoBehaviour
         RefreshForm();
     }
 
+
     private void RefreshForm()
     {
+        Debug.Log("RefreshForm called");
+
         // Clear input fields
         drinkNameInput.text = "";
         instructionsInput.text = "";
@@ -261,24 +271,22 @@ public class AddOwnDrink : MonoBehaviour
             pair.SetActive(false);
         }
 
-        // Activate the first ingredient pair
+        // Activate the first ingredient pair if there are any
         if (ingredientMeasurementPairs.Count > 0)
         {
-            ingredientMeasurementPairs[0].SetActive(true);
-            activePairsCount = 1;
+            GameObject firstPair = ingredientMeasurementPairs[0];
+            firstPair.SetActive(true);
+            activePairsCount = 1; // Reflect that the first pair is active
+
+            // Clear the input fields of the first ingredient pair
+            TMP_InputField ingredientInput = firstPair.transform.Find("IngredientInput").GetComponent<TMP_InputField>();
+            TMP_InputField measurementInput = firstPair.transform.Find("MeasurementInput").GetComponent<TMP_InputField>();
+            ingredientInput.text = "";
+            measurementInput.text = "";
         }
         else
         {
             activePairsCount = 0;
-        }
-
-        // Clear the input fields of the first ingredient pair
-        if (activePairsCount > 0)
-        {
-            TMP_InputField ingredientInput = ingredientMeasurementPairs[0].transform.Find("IngredientInput").GetComponent<TMP_InputField>();
-            TMP_InputField measurementInput = ingredientMeasurementPairs[0].transform.Find("MeasurementInput").GetComponent<TMP_InputField>();
-            ingredientInput.text = "";
-            measurementInput.text = "";
         }
 
         // Reset the picture path

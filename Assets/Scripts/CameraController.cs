@@ -24,7 +24,7 @@ public class CameraController : MonoBehaviour
 
         cameraRawImage.rectTransform.sizeDelta = new Vector2(500, 500);
 
-        transform.Rotate(0, 0, -90); // Adjust the axis as per your requirement
+        transform.Rotate(0, 0, -180); // Adjust the axis as per your requirement
 
         StartCoroutine(CheckCameraInitialization());
     }
@@ -83,8 +83,8 @@ public class CameraController : MonoBehaviour
             yield break;
         }
 
-        Texture2D photo = new Texture2D(webCamTexture.width, webCamTexture.height);
-        photo.SetPixels(webCamTexture.GetPixels());
+        Texture2D photo = new Texture2D(webCamTexture.width, webCamTexture.height, TextureFormat.RGB24, false);
+        photo.SetPixels32(webCamTexture.GetPixels32());
         photo.Apply();
 
         Texture2D squarePhoto = ResizeTexture(photo, 500, 500);

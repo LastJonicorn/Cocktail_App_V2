@@ -9,6 +9,11 @@ public class DisplaySavedDrinks : MonoBehaviour
 {
     public GameObject drinkPrefab;
     public Transform contentTransform;
+    public GameObject ownDetailPanel; // Assign in Inspector
+
+    public GameObject ownDrinks;
+
+    private DetailPanelScript detailPanelScript;
 
     // Use OnEnable instead of Start
     void OnEnable()
@@ -55,9 +60,32 @@ public class DisplaySavedDrinks : MonoBehaviour
                 Debug.LogWarning("RawImage component not found or picture path is empty for drink: " + drink.drinkName);
             }
 
-            // Find the button with the tag "RemoveOwn" among the children
+            // Find the button with the tag "DetailOwn" among the children
             Button[] buttons = drinkObject.GetComponentsInChildren<Button>(true);
+            Button detailButton = null;
             Button removeButton = null;
+
+            foreach (var button in buttons)
+            {
+                if (button.CompareTag("DetailOwn"))
+                {
+                    detailButton = button;
+                    break;
+                }
+            }
+
+            if (detailButton != null)
+            {
+                // Remove any existing listeners to prevent duplicates
+                detailButton.onClick.RemoveAllListeners();
+
+                // Add onClick listener to the detailButton
+                detailButton.onClick.AddListener(() => OnOwnDrinkEntryClicked(drink));
+            }
+            else
+            {
+                Debug.LogError("Button with tag DetailOwn not found in drink prefab.");
+            }
 
             foreach (var button in buttons)
             {
@@ -87,6 +115,35 @@ public class DisplaySavedDrinks : MonoBehaviour
         LayoutRebuilder.ForceRebuildLayoutImmediate(contentTransform.GetComponent<RectTransform>());
     }
 
+    void OnOwnDrinkEntryClicked(OwnDrink drink)
+    {
+        Debug.Log("OwnDrink entry clicked: " + drink.drinkName + ", " + drink.ingredients.Count + " ingredients");
+
+        if (ownDetailPanel != null)
+        {
+            ownDetailPanel.SetActive(true);
+
+            if (detailPanelScript == null)
+            {
+                detailPanelScript = ownDetailPanel.GetComponent<DetailPanelScript>();
+            }
+
+            if (detailPanelScript != null)
+            {
+                detailPanelScript.DisplayOwnDrinkDetails(drink);
+            }
+            else
+            {
+                Debug.LogError("DetailPanelScript component not found on ownDetailPanel.");
+            }
+        }
+        else
+        {
+            Debug.LogError("ownDetailPanel is not assigned.");
+        }
+        ownDrinks.SetActive(false);
+    }
+
     private IEnumerator LoadPicture(string path, RawImage targetImage)
     {
         string fullPath = Path.Combine(Application.persistentDataPath, path);
@@ -95,17 +152,21 @@ public class DisplaySavedDrinks : MonoBehaviour
         {
             byte[] fileData = File.ReadAllBytes(fullPath);
             Texture2D texture = new Texture2D(2, 2);
-            texture.LoadImage(fileData);
+            if (texture.LoadImage(fileData))
+            {
+                targetImage.texture = texture;
 
-            targetImage.texture = texture;
+                float aspectRatio = (float)texture.width / texture.height;
+                float targetWidth = 250f;
+                float targetHeight = targetWidth / aspectRatio;
+                targetImage.rectTransform.sizeDelta = new Vector2(targetWidth, targetHeight);
 
-            float aspectRatio = (float)texture.width / texture.height;
-            float targetWidth = 250;
-            float targetHeight = targetWidth / aspectRatio;
-
-            targetImage.rectTransform.sizeDelta = new Vector2(targetWidth, targetHeight);
-
-            Debug.Log("Set RawImage size to: " + targetImage.rectTransform.sizeDelta);
+                Debug.Log("Set RawImage size to: " + targetImage.rectTransform.sizeDelta);
+            }
+            else
+            {
+                Debug.LogError("Failed to load texture from file data.");
+            }
         }
         else
         {
