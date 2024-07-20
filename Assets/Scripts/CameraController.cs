@@ -17,14 +17,10 @@ public class CameraController : MonoBehaviour
             webCamTexture = null;
         }
 
-        webCamTexture = new WebCamTexture(500, 500);
+        webCamTexture = new WebCamTexture();
         cameraRawImage.texture = webCamTexture;
         cameraRawImage.material.mainTexture = webCamTexture;
         webCamTexture.Play();
-
-        cameraRawImage.rectTransform.sizeDelta = new Vector2(500, 500);
-
-        transform.Rotate(0, 0, -180); // Adjust the axis as per your requirement
 
         StartCoroutine(CheckCameraInitialization());
     }
@@ -39,10 +35,29 @@ public class CameraController : MonoBehaviour
         if (webCamTexture.width > 16 && webCamTexture.height > 16)
         {
             Debug.Log("Camera successfully initialized");
+            AdjustCameraOrientation();
         }
         else
         {
             Debug.LogError("Failed to initialize camera");
+        }
+    }
+
+    private void AdjustCameraOrientation()
+    {
+        int rotationAngle = -webCamTexture.videoRotationAngle;
+        bool isVertical = webCamTexture.videoVerticallyMirrored;
+
+        // Adjust the rotation and flipping based on the camera orientation
+        cameraRawImage.rectTransform.localEulerAngles = new Vector3(0, 0, rotationAngle);
+
+        if (isVertical)
+        {
+            cameraRawImage.rectTransform.localScale = new Vector3(1, -1, 1);
+        }
+        else
+        {
+            cameraRawImage.rectTransform.localScale = new Vector3(1, 1, 1);
         }
     }
 

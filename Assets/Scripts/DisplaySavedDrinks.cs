@@ -39,7 +39,8 @@ public class DisplaySavedDrinks : MonoBehaviour
             GameObject drinkObject = Instantiate(drinkPrefab, contentTransform);
 
             TextMeshProUGUI drinkNameText = drinkObject.GetComponentInChildren<TextMeshProUGUI>();
-            RawImage drinkImage = drinkObject.GetComponentInChildren<RawImage>();
+            RawImage drinkRawImage = drinkObject.GetComponentInChildren<RawImage>();
+            Image drinkImage = drinkObject.GetComponentInChildren<Image>();
 
             if (drinkNameText != null)
             {
@@ -50,14 +51,25 @@ public class DisplaySavedDrinks : MonoBehaviour
                 Debug.LogWarning("TextMeshProUGUI component not found in drink prefab.");
             }
 
-            if (drinkImage != null && !string.IsNullOrEmpty(drink.picturePath))
+            if (!string.IsNullOrEmpty(drink.picturePath))
             {
                 Debug.Log("Loading picture for drink: " + drink.drinkName + " from path: " + drink.picturePath);
-                StartCoroutine(LoadPicture(drink.picturePath, drinkImage));
+                if (drinkRawImage != null)
+                {
+                    StartCoroutine(LoadPicture(drink.picturePath, targetRawImage: drinkRawImage));
+                }
+                else if (drinkImage != null)
+                {
+                    StartCoroutine(LoadPicture(drink.picturePath, targetImage: drinkImage));
+                }
+                else
+                {
+                    Debug.LogWarning("Neither RawImage nor Image component found for drink: " + drink.drinkName);
+                }
             }
             else
             {
-                Debug.LogWarning("RawImage component not found or picture path is empty for drink: " + drink.drinkName);
+                Debug.LogWarning("Picture path is empty for drink: " + drink.drinkName);
             }
 
             // Find the button with the tag "DetailOwn" among the children
@@ -144,24 +156,54 @@ public class DisplaySavedDrinks : MonoBehaviour
         ownDrinks.SetActive(false);
     }
 
-    private IEnumerator LoadPicture(string path, RawImage targetImage)
+    private IEnumerator LoadPicture(string path, RawImage targetRawImage = null, Image targetImage = null)
     {
         string fullPath = Path.Combine(Application.persistentDataPath, path);
+        Debug.Log("Full path for loading picture: " + fullPath);
 
         if (File.Exists(fullPath))
         {
+            Debug.Log("File exists at path: " + fullPath);
             byte[] fileData = File.ReadAllBytes(fullPath);
             Texture2D texture = new Texture2D(2, 2);
             if (texture.LoadImage(fileData))
             {
-                targetImage.texture = texture;
+                Debug.Log("Texture loaded successfully from file data. Width: " + texture.width + ", Height: " + texture.height);
 
-                float aspectRatio = (float)texture.width / texture.height;
-                float targetWidth = 250f;
-                float targetHeight = targetWidth / aspectRatio;
-                targetImage.rectTransform.sizeDelta = new Vector2(targetWidth, targetHeight);
+                if (texture.width > 0 && texture.height > 0)
+                {
+                    if (targetRawImage != null)
+                    {
+                        targetRawImage.texture = texture;
 
-                Debug.Log("Set RawImage size to: " + targetImage.rectTransform.sizeDelta);
+                        float aspectRatio = (float)texture.width / texture.height;
+                        float targetWidth = 250f;
+                        float targetHeight = targetWidth / aspectRatio;
+                        targetRawImage.rectTransform.sizeDelta = new Vector2(targetWidth, targetHeight);
+
+                        Debug.Log("Set RawImage size to: " + targetRawImage.rectTransform.sizeDelta);
+                    }
+                    else if (targetImage != null)
+                    {
+                        Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                        targetImage.sprite = sprite;
+
+                        float aspectRatio = (float)texture.width / texture.height;
+                        float targetWidth = 250f;
+                        float targetHeight = targetWidth / aspectRatio;
+                        targetImage.rectTransform.sizeDelta = new Vector2(targetWidth, targetHeight);
+
+                        Debug.Log("Set Image size to: " + targetImage.rectTransform.sizeDelta);
+                    }
+                    else
+                    {
+                        Debug.LogError("No target component specified for displaying the image.");
+                    }
+                }
+                else
+                {
+                    Debug.LogError("Loaded texture has invalid dimensions.");
+                }
             }
             else
             {
@@ -175,6 +217,7 @@ public class DisplaySavedDrinks : MonoBehaviour
 
         yield return null;
     }
+
 
     public List<OwnDrink> LoadOwnDrinks()
     {

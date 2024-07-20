@@ -62,6 +62,8 @@ public class AddOwnDrink : MonoBehaviour
         {
             cameraController.ReinitializeCamera();
         }
+
+        RefreshForm();
     }
 
     private void OnDisable()
@@ -203,7 +205,7 @@ public class AddOwnDrink : MonoBehaviour
         string instructions = instructionsInput.text;
 
         ingredients.Clear();
-        for (int i = 0; i <= activePairsCount; i++)
+        for (int i = 0; i < activePairsCount; i++)  // Change this line
         {
             GameObject pair = ingredientMeasurementPairs[i];
             TMP_InputField ingredientInput = pair.transform.Find("IngredientInput").GetComponent<TMP_InputField>();
@@ -255,7 +257,6 @@ public class AddOwnDrink : MonoBehaviour
         // Refresh the form
         RefreshForm();
     }
-
 
     private void RefreshForm()
     {
