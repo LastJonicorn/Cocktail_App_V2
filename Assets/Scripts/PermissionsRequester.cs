@@ -18,5 +18,12 @@ public class PermissionsRequester : MonoBehaviour
             // Request the write external storage permission
             Permission.RequestUserPermission(Permission.ExternalStorageWrite);
         }
+
+        // Check if the write external storage permission is not granted
+        if (!Permission.HasUserAuthorizedPermission(Permission.ExternalStorageRead))
+        {
+            // Request the write external storage permission
+            Permission.RequestUserPermission(Permission.ExternalStorageRead);
+        }
     }
 }

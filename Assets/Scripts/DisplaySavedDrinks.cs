@@ -9,13 +9,10 @@ public class DisplaySavedDrinks : MonoBehaviour
 {
     public GameObject drinkPrefab;
     public Transform contentTransform;
-    public GameObject ownDetailPanel; // Assign in Inspector
-
+    public GameObject ownDetailPanel;
     public GameObject ownDrinks;
-
     private DetailPanelScript detailPanelScript;
 
-    // Use OnEnable instead of Start
     void OnEnable()
     {
         LoadAndDisplayDrinks();
@@ -23,9 +20,7 @@ public class DisplaySavedDrinks : MonoBehaviour
 
     public void LoadAndDisplayDrinks()
     {
-        // Clear existing drinks if any
         ClearDrinkDisplay();
-
         List<OwnDrink> drinks = LoadOwnDrinks();
 
         if (drinks == null || drinks.Count == 0)
@@ -37,7 +32,6 @@ public class DisplaySavedDrinks : MonoBehaviour
         foreach (OwnDrink drink in drinks)
         {
             GameObject drinkObject = Instantiate(drinkPrefab, contentTransform);
-
             TextMeshProUGUI drinkNameText = drinkObject.GetComponentInChildren<TextMeshProUGUI>();
             RawImage drinkRawImage = drinkObject.GetComponentInChildren<RawImage>();
             Image drinkImage = drinkObject.GetComponentInChildren<Image>();
@@ -72,7 +66,6 @@ public class DisplaySavedDrinks : MonoBehaviour
                 Debug.LogWarning("Picture path is empty for drink: " + drink.drinkName);
             }
 
-            // Find the button with the tag "DetailOwn" among the children
             Button[] buttons = drinkObject.GetComponentsInChildren<Button>(true);
             Button detailButton = null;
             Button removeButton = null;
@@ -88,10 +81,7 @@ public class DisplaySavedDrinks : MonoBehaviour
 
             if (detailButton != null)
             {
-                // Remove any existing listeners to prevent duplicates
                 detailButton.onClick.RemoveAllListeners();
-
-                // Add onClick listener to the detailButton
                 detailButton.onClick.AddListener(() => OnOwnDrinkEntryClicked(drink));
             }
             else
@@ -110,10 +100,7 @@ public class DisplaySavedDrinks : MonoBehaviour
 
             if (removeButton != null)
             {
-                // Remove any existing listeners to prevent duplicates
                 removeButton.onClick.RemoveAllListeners();
-
-                // Add onClick listener to the removeButton
                 removeButton.onClick.AddListener(() => DeleteDrink(drink.drinkName));
             }
             else
@@ -122,7 +109,6 @@ public class DisplaySavedDrinks : MonoBehaviour
             }
         }
 
-        // Force layout rebuild to ensure proper scroll view updating
         Canvas.ForceUpdateCanvases();
         LayoutRebuilder.ForceRebuildLayoutImmediate(contentTransform.GetComponent<RectTransform>());
     }
@@ -159,50 +145,39 @@ public class DisplaySavedDrinks : MonoBehaviour
     private IEnumerator LoadPicture(string path, RawImage targetRawImage = null, Image targetImage = null)
     {
         string fullPath = Path.Combine(Application.persistentDataPath, path);
-        Debug.Log("Full path for loading picture: " + fullPath);
+
+        Debug.Log("Attempting to load picture from path: " + fullPath);
 
         if (File.Exists(fullPath))
         {
             Debug.Log("File exists at path: " + fullPath);
             byte[] fileData = File.ReadAllBytes(fullPath);
-            Texture2D texture = new Texture2D(2, 2);
+            Texture2D texture = new Texture2D(2, 2, TextureFormat.RGB24, false);
+
             if (texture.LoadImage(fileData))
             {
-                Debug.Log("Texture loaded successfully from file data. Width: " + texture.width + ", Height: " + texture.height);
+                Debug.Log("Texture loaded successfully. Width: " + texture.width + ", Height: " + texture.height);
 
-                if (texture.width > 0 && texture.height > 0)
+                if (targetRawImage != null)
                 {
-                    if (targetRawImage != null)
-                    {
-                        targetRawImage.texture = texture;
-
-                        float aspectRatio = (float)texture.width / texture.height;
-                        float targetWidth = 250f;
-                        float targetHeight = targetWidth / aspectRatio;
-                        targetRawImage.rectTransform.sizeDelta = new Vector2(targetWidth, targetHeight);
-
-                        Debug.Log("Set RawImage size to: " + targetRawImage.rectTransform.sizeDelta);
-                    }
-                    else if (targetImage != null)
-                    {
-                        Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
-                        targetImage.sprite = sprite;
-
-                        float aspectRatio = (float)texture.width / texture.height;
-                        float targetWidth = 250f;
-                        float targetHeight = targetWidth / aspectRatio;
-                        targetImage.rectTransform.sizeDelta = new Vector2(targetWidth, targetHeight);
-
-                        Debug.Log("Set Image size to: " + targetImage.rectTransform.sizeDelta);
-                    }
-                    else
-                    {
-                        Debug.LogError("No target component specified for displaying the image.");
-                    }
+                    targetRawImage.texture = texture;
+                    float aspectRatio = (float)texture.width / texture.height;
+                    float targetWidth = 250f;
+                    float targetHeight = targetWidth / aspectRatio;
+                    targetRawImage.rectTransform.sizeDelta = new Vector2(targetWidth, targetHeight);
+                }
+                else if (targetImage != null)
+                {
+                    Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                    targetImage.sprite = sprite;
+                    float aspectRatio = (float)texture.width / texture.height;
+                    float targetWidth = 250f;
+                    float targetHeight = targetWidth / aspectRatio;
+                    targetImage.rectTransform.sizeDelta = new Vector2(targetWidth, targetHeight);
                 }
                 else
                 {
-                    Debug.LogError("Loaded texture has invalid dimensions.");
+                    Debug.LogError("No target component specified for displaying the image.");
                 }
             }
             else
@@ -217,6 +192,7 @@ public class DisplaySavedDrinks : MonoBehaviour
 
         yield return null;
     }
+
 
 
     public List<OwnDrink> LoadOwnDrinks()
@@ -244,7 +220,6 @@ public class DisplaySavedDrinks : MonoBehaviour
             SaveOwnDrinks(drinks);
             Debug.Log("Deleted drink: " + drinkName);
 
-            // Refresh the display
             LoadAndDisplayDrinks();
         }
         else
@@ -263,7 +238,6 @@ public class DisplaySavedDrinks : MonoBehaviour
 
     private void ClearDrinkDisplay()
     {
-        // Destroy all children of contentTransform
         foreach (Transform child in contentTransform)
         {
             Destroy(child.gameObject);

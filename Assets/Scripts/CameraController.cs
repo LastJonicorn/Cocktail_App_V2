@@ -48,7 +48,6 @@ public class CameraController : MonoBehaviour
         int rotationAngle = -webCamTexture.videoRotationAngle;
         bool isVertical = webCamTexture.videoVerticallyMirrored;
 
-        // Adjust the rotation and flipping based on the camera orientation
         cameraRawImage.rectTransform.localEulerAngles = new Vector3(0, 0, rotationAngle);
 
         if (isVertical)
@@ -98,22 +97,32 @@ public class CameraController : MonoBehaviour
             yield break;
         }
 
-        Texture2D photo = new Texture2D(webCamTexture.width, webCamTexture.height, TextureFormat.RGB24, false);
-        photo.SetPixels32(webCamTexture.GetPixels32());
-        photo.Apply();
+        try
+        {
+            Texture2D photo = new Texture2D(webCamTexture.width, webCamTexture.height, TextureFormat.RGB24, false);
+            photo.SetPixels(webCamTexture.GetPixels());
+            photo.Apply();
 
-        Texture2D squarePhoto = ResizeTexture(photo, 500, 500);
+            Texture2D squarePhoto = ResizeTexture(photo, 500, 500);
 
-        byte[] bytes = squarePhoto.EncodeToPNG();
-        string newPicturePath = Path.Combine(Application.persistentDataPath, System.Guid.NewGuid().ToString() + ".png");
-        File.WriteAllBytes(newPicturePath, bytes);
+            byte[] bytes = squarePhoto.EncodeToPNG();
+            string newPicturePath = Path.Combine(Application.persistentDataPath, System.Guid.NewGuid().ToString() + ".png");
+            File.WriteAllBytes(newPicturePath, bytes);
 
-        picturePath = newPicturePath;
+            picturePath = newPicturePath;
 
-        Debug.Log("Photo saved to: " + picturePath);
+            Debug.Log("Photo saved to: " + picturePath);
+            Debug.Log("Application.persistentDataPath: " + Application.persistentDataPath);
 
-        Destroy(photo);
+            Destroy(photo);
+            Destroy(squarePhoto);
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"An error occurred while capturing the photo: {ex.Message}");
+        }
     }
+
 
     private Texture2D ResizeTexture(Texture2D original, int width, int height)
     {

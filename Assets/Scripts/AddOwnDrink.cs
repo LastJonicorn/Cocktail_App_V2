@@ -4,13 +4,14 @@ using TMPro;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Android;
+using System.IO;
 
 [System.Serializable]
 public class OwnDrink
 {
     public string drinkName;
     public string picturePath;
-    public List<Ingredient> ingredients = new List<Ingredient>(); // Initialize list
+    public List<Ingredient> ingredients = new List<Ingredient>();
     public string instructions;
 }
 
@@ -37,7 +38,7 @@ public class AddOwnDrink : MonoBehaviour
 
     private string picturePath;
     private List<Ingredient> ingredients = new List<Ingredient>();
-    private int activePairsCount = 0; // Start from 0
+    private int activePairsCount = 0;
 
     void Start()
     {
@@ -45,9 +46,7 @@ public class AddOwnDrink : MonoBehaviour
         addIngredientButton.onClick.AddListener(ActivateNextIngredientMeasurementPair);
         saveButton.onClick.AddListener(SaveOwnDrink);
 
-        // Request necessary permissions at startup
         RequestPermissions();
-
     }
 
     private void OnEnable()
@@ -57,7 +56,6 @@ public class AddOwnDrink : MonoBehaviour
             LoadPicture(picturePath);
         }
 
-        // Reinitialize camera feed
         if (cameraController != null)
         {
             cameraController.ReinitializeCamera();
@@ -68,7 +66,6 @@ public class AddOwnDrink : MonoBehaviour
 
     private void OnDisable()
     {
-        // Stop camera feed
         if (cameraController != null)
         {
             cameraController.StopCamera();
@@ -115,10 +112,9 @@ public class AddOwnDrink : MonoBehaviour
     {
         if (cameraController != null)
         {
-            // Clear the previous picture path before taking a new picture
             picturePath = "";
             rawImage.texture = null;
-            rawImage.rectTransform.sizeDelta = new Vector2(500, 500); // Maintain the size
+            rawImage.rectTransform.sizeDelta = new Vector2(500, 500);
 
             cameraController.TakePicture();
             StartCoroutine(UpdatePicturePath());
@@ -131,10 +127,8 @@ public class AddOwnDrink : MonoBehaviour
 
     private IEnumerator UpdatePicturePath()
     {
-        // Wait a bit to ensure the picture is saved correctly
         yield return new WaitForSeconds(0.5f);
 
-        // Ensure picture is saved correctly
         while (string.IsNullOrEmpty(cameraController.GetPicturePath()))
         {
             yield return null;
@@ -150,9 +144,11 @@ public class AddOwnDrink : MonoBehaviour
 
     private void LoadPicture(string path)
     {
-        if (System.IO.File.Exists(path))
+        string fullPath = Path.Combine(Application.persistentDataPath, path);
+
+        if (File.Exists(fullPath))
         {
-            byte[] fileData = System.IO.File.ReadAllBytes(path);
+            byte[] fileData = File.ReadAllBytes(fullPath);
             Texture2D texture = new Texture2D(2, 2);
             texture.LoadImage(fileData);
 
@@ -169,7 +165,7 @@ public class AddOwnDrink : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Failed to load picture: File does not exist at path: " + path);
+            Debug.LogError("Failed to load picture: File does not exist at path: " + fullPath);
         }
     }
 
@@ -179,10 +175,8 @@ public class AddOwnDrink : MonoBehaviour
 
         if (activePairsCount < ingredientMeasurementPairs.Count)
         {
-            // Activate the next pair
             ingredientMeasurementPairs[activePairsCount].SetActive(true);
             activePairsCount++;
-
             Debug.Log($"Activated ingredient pair {activePairsCount - 1}");
         }
         else
@@ -205,7 +199,7 @@ public class AddOwnDrink : MonoBehaviour
         string instructions = instructionsInput.text;
 
         ingredients.Clear();
-        for (int i = 0; i < activePairsCount; i++)  // Change this line
+        for (int i = 0; i < activePairsCount; i++)
         {
             GameObject pair = ingredientMeasurementPairs[i];
             TMP_InputField ingredientInput = pair.transform.Find("IngredientInput").GetComponent<TMP_InputField>();
@@ -237,6 +231,9 @@ public class AddOwnDrink : MonoBehaviour
             return;
         }
 
+        // Ensure the picture path is obtained from the CameraController
+        string picturePath = cameraController.GetPicturePath();
+
         OwnDrink ownDrink = new OwnDrink
         {
             drinkName = drinkName,
@@ -254,32 +251,29 @@ public class AddOwnDrink : MonoBehaviour
 
         SetFeedbackText("Drink saved: " + drinkName);
 
-        // Refresh the form
         RefreshForm();
     }
+
+
 
     private void RefreshForm()
     {
         Debug.Log("RefreshForm called");
 
-        // Clear input fields
         drinkNameInput.text = "";
         instructionsInput.text = "";
 
-        // Deactivate all ingredient pairs
         foreach (GameObject pair in ingredientMeasurementPairs)
         {
             pair.SetActive(false);
         }
 
-        // Activate the first ingredient pair if there are any
         if (ingredientMeasurementPairs.Count > 0)
         {
             GameObject firstPair = ingredientMeasurementPairs[0];
             firstPair.SetActive(true);
-            activePairsCount = 1; // Reflect that the first pair is active
+            activePairsCount = 1;
 
-            // Clear the input fields of the first ingredient pair
             TMP_InputField ingredientInput = firstPair.transform.Find("IngredientInput").GetComponent<TMP_InputField>();
             TMP_InputField measurementInput = firstPair.transform.Find("MeasurementInput").GetComponent<TMP_InputField>();
             ingredientInput.text = "";
@@ -290,30 +284,16 @@ public class AddOwnDrink : MonoBehaviour
             activePairsCount = 0;
         }
 
-        // Reset the picture path
         picturePath = "";
 
-        // Ensure the rawImage is visible and set its size to 500x500
         if (rawImage != null)
         {
-            if (!string.IsNullOrEmpty(picturePath) && System.IO.File.Exists(picturePath))
-            {
-                LoadPicture(picturePath);
-            }
-            else
-            {
-                rawImage.texture = null; // Or set it to a default texture if you have one
-            }
-
-            // Set the size of the rawImage
+            rawImage.texture = null;
             rawImage.rectTransform.sizeDelta = new Vector2(500, 500);
         }
 
-        // Clear feedback text
         feedbackText.text = "";
     }
-
-
 
     public List<OwnDrink> LoadOwnDrinks()
     {
