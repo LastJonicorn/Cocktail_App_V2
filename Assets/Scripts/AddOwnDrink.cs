@@ -249,7 +249,7 @@ public class AddOwnDrink : MonoBehaviour
         PlayerPrefs.SetString(DrinksKey, json);
         PlayerPrefs.Save();
 
-        SetFeedbackText("Drink saved: " + drinkName);
+        SetFeedbackText("Drink " + drinkName + " saved succesfully");
 
         RefreshForm();
     }
@@ -291,8 +291,6 @@ public class AddOwnDrink : MonoBehaviour
             rawImage.texture = null;
             rawImage.rectTransform.sizeDelta = new Vector2(500, 500);
         }
-
-        feedbackText.text = "";
     }
 
     public List<OwnDrink> LoadOwnDrinks()
