@@ -122,12 +122,17 @@
 </ul>
 
 </div>
+
+<h1> 20.7.2024 </h1>
+<ul>
+  <li> Adding own drink works on Android also... Didn't before. </li>
+</ul>
+
+</div>
   <h1> TODOS </h1>
 <ul>
-  <li> Open Detail Panel for your own drinks </li>
-  <li> Testing </li>
-  <li> New pictures in place of ugly buttons </li>
-  <li> Fonts </li>
+  <li> Display message "You don't have any own drinks saved" </li>
+  <li> Message should pop from top when OwnDrink is saved </li>
   <li> Add your favorite liquors with image (Maybe...) </li>
 </ul>
     
@@ -136,5 +141,5 @@
 <h1> Problems </h1>
 <ul>
   <li> Server for the apiKEY </li>
-  <li> Favorite liquors (Is it necessary?) </li>
+  <li> Sometimes the wrong OwnDrink is deleted when deleting </li>
 </ul>
