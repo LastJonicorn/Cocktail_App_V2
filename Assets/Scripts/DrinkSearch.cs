@@ -8,20 +8,25 @@ using System.IO;
 public class DrinkSearch : MonoBehaviour
 {
     private string apiUrl;
+    private int loadedDrinksCount = 0;
+    private int drinksPerPage = 20; // Initial load
+    private int additionalDrinksCount = 10; // Drinks to load on "Load More"
 
-    public TMP_InputField searchInput; // Reference to the text input field
-
-    public Transform contentPanel; // Parent panel to hold the drink entries
-    public GameObject drinkEntryPrefab; // Prefab for individual drink entries
+    public TMP_InputField searchInput;
+    public Transform contentPanel;
+    public GameObject drinkEntryPrefab;
 
     public string searchType;
     public string urlAddition;
 
-    public GameObject searchDetailPanel; // Reference to the panel to open
+    public GameObject searchDetailPanel;
     public GameObject searchScreen;
-    public DetailPanelScript detailPanelScript; // Reference to DetailPanelScript attached to searchDetailPanel
+    public DetailPanelScript detailPanelScript;
 
-    public GameObject loadingPanel; // Reference to the loading panel
+    public GameObject loadingPanel;
+    public GameObject loadMoreButtonPrefab; // Reference to the "Load More" button prefab
+
+    private GameObject loadMoreButtonInstance; // Instance of the "Load More" button
 
     void Start()
     {
@@ -117,57 +122,72 @@ public class DrinkSearch : MonoBehaviour
             DrinkResponse drinkResponse = JsonUtility.FromJson<DrinkResponse>(responseTextContent);
             if (drinkResponse != null && drinkResponse.drinks != null)
             {
-                ClearDrinks(); // Clear existing drink entries
-
                 int count = 0;
                 foreach (Drink drink in drinkResponse.drinks)
                 {
-                    if (count >= 20) break; // Limit to 20 drinks
+                    if (count >= drinksPerPage + loadedDrinksCount) break; // Limit the number of drinks to load
 
-                    GameObject drinkEntry = Instantiate(drinkEntryPrefab, contentPanel);
-                    drinkEntry.transform.SetParent(contentPanel, false);
+                    if (count >= loadedDrinksCount) // Start loading from the current loaded count
+                    {
+                        GameObject drinkEntry = Instantiate(drinkEntryPrefab, contentPanel);
+                        drinkEntry.transform.SetParent(contentPanel, false);
 
-                    TextMeshProUGUI text = drinkEntry.GetComponentInChildren<TextMeshProUGUI>();
-                    if (text == null)
-                    {
-                        text = drinkEntry.AddComponent<TextMeshProUGUI>();
-                    }
-                    text.text = drink.strDrink;
+                        TextMeshProUGUI text = drinkEntry.GetComponentInChildren<TextMeshProUGUI>();
+                        if (text == null)
+                        {
+                            text = drinkEntry.AddComponent<TextMeshProUGUI>();
+                        }
+                        text.text = drink.strDrink;
 
-                    Image image = drinkEntry.GetComponentInChildren<Image>();
-                    if (image == null)
-                    {
-                        image = drinkEntry.AddComponent<Image>();
-                    }
-                    if (!string.IsNullOrEmpty(drink.strDrinkThumb))
-                    {
-                        // Modify the image URL to use the 100x100 version
-                        string lowResImageUrl = drink.strDrinkThumb.Replace("/preview", "/100x100");
-                        StartCoroutine(LoadImage(lowResImageUrl, image));
-                    }
+                        Image image = drinkEntry.GetComponentInChildren<Image>();
+                        if (image == null)
+                        {
+                            image = drinkEntry.AddComponent<Image>();
+                        }
+                        if (!string.IsNullOrEmpty(drink.strDrinkThumb))
+                        {
+                            // Modify the image URL to use the 100x100 version
+                            string lowResImageUrl = drink.strDrinkThumb.Replace("/preview", "/100x100");
+                            StartCoroutine(LoadImage(lowResImageUrl, image));
+                        }
 
-                    // Add click handler to open detail panel
-                    Button button = drinkEntry.GetComponentInChildren<Button>();
-                    if (button != null)
-                    {
-                        button.onClick.AddListener(() => OnDrinkEntryClicked(drink));
-                    }
-                    else
-                    {
-                        Debug.LogError("Button component not found on drink entry prefab.");
+                        // Add click handler to open detail panel
+                        Button button = drinkEntry.GetComponentInChildren<Button>();
+                        if (button != null)
+                        {
+                            button.onClick.AddListener(() => OnDrinkEntryClicked(drink));
+                        }
+                        else
+                        {
+                            Debug.LogError("Button component not found on drink entry prefab.");
+                        }
                     }
 
                     count++;
+                }
+
+                loadedDrinksCount += count;
+
+                // Show or hide the Load More button based on remaining drinks
+                if (drinkResponse.drinks.Length > loadedDrinksCount)
+                {
+                    ShowLoadMoreButton(true);
+                }
+                else
+                {
+                    ShowLoadMoreButton(false);
                 }
             }
             else
             {
                 Debug.LogWarning("No drinks found in the response.");
+                ShowLoadMoreButton(false);
             }
         }
         catch (System.Exception e)
         {
             Debug.LogError("Error handling response: " + e.Message);
+            ShowLoadMoreButton(false);
         }
     }
 
@@ -199,6 +219,7 @@ public class DrinkSearch : MonoBehaviour
             }
         }
     }
+
     void DisplayRetrievedDrinkDetails(Drink drink)
     {
         if (searchDetailPanel != null)
@@ -221,7 +242,6 @@ public class DrinkSearch : MonoBehaviour
             Debug.LogError("searchDetailPanel is not assigned.");
         }
     }
-
 
     void OnDrinkEntryClicked(Drink drink)
     {
@@ -253,13 +273,13 @@ public class DrinkSearch : MonoBehaviour
         }
     }
 
-
     void ClearDrinks()
     {
         foreach (Transform child in contentPanel)
         {
             Destroy(child.gameObject);
         }
+        loadedDrinksCount = 0; // Reset loaded count
     }
 
     IEnumerator LoadImage(string imageUrl, Image image)
@@ -286,6 +306,7 @@ public class DrinkSearch : MonoBehaviour
 
     public void SearchForDrinks(string searchTerm)
     {
+        ClearDrinks();
         string searchUrl = string.IsNullOrEmpty(searchTerm) ? apiUrl + searchType : apiUrl + searchType + searchTerm;
         StartCoroutine(GetRequest(searchUrl));
     }
@@ -300,5 +321,40 @@ public class DrinkSearch : MonoBehaviour
         {
             Debug.LogError("Loading panel is not assigned.");
         }
+    }
+
+    void ShowLoadMoreButton(bool show)
+    {
+        if (show)
+        {
+            if (loadMoreButtonInstance == null)
+            {
+                loadMoreButtonInstance = Instantiate(loadMoreButtonPrefab, contentPanel);
+                loadMoreButtonInstance.transform.SetParent(contentPanel, false);
+
+                Button loadMoreButton = loadMoreButtonInstance.GetComponentInChildren<Button>();
+                if (loadMoreButton != null)
+                {
+                    loadMoreButton.onClick.AddListener(() => LoadMoreDrinks());
+                }
+                else
+                {
+                    Debug.LogError("Button component not found on Load More button prefab.");
+                }
+            }
+
+            // Ensure the button is always at the bottom
+            loadMoreButtonInstance.transform.SetAsLastSibling();
+        }
+        else if (loadMoreButtonInstance != null)
+        {
+            Destroy(loadMoreButtonInstance);
+        }
+    }
+
+    public void LoadMoreDrinks()
+    {
+        string searchUrl = apiUrl + searchType + searchInput.text;
+        StartCoroutine(GetRequest(searchUrl));
     }
 }

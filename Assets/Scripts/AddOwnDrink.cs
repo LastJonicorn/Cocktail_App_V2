@@ -254,8 +254,6 @@ public class AddOwnDrink : MonoBehaviour
         RefreshForm();
     }
 
-
-
     private void RefreshForm()
     {
         Debug.Log("RefreshForm called");
@@ -267,6 +265,9 @@ public class AddOwnDrink : MonoBehaviour
         {
             pair.SetActive(false);
         }
+
+        // Force rebuild the layout to update the space reserved by deactivated objects
+        LayoutRebuilder.ForceRebuildLayoutImmediate(layoutGroup.GetComponent<RectTransform>());
 
         if (ingredientMeasurementPairs.Count > 0)
         {
@@ -291,6 +292,9 @@ public class AddOwnDrink : MonoBehaviour
             rawImage.texture = null;
             rawImage.rectTransform.sizeDelta = new Vector2(500, 500);
         }
+
+        // Force rebuild the layout again after making any changes
+        LayoutRebuilder.ForceRebuildLayoutImmediate(layoutGroup.GetComponent<RectTransform>());
     }
 
     public List<OwnDrink> LoadOwnDrinks()
@@ -306,6 +310,7 @@ public class AddOwnDrink : MonoBehaviour
 
     private void SetFeedbackText(string message)
     {
+        feedbackText.gameObject.SetActive(true);
         feedbackText.text = message;
         StartCoroutine(ClearFeedbackTextAfterDelay(3));
     }
@@ -314,6 +319,7 @@ public class AddOwnDrink : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         feedbackText.text = "";
+        feedbackText.gameObject.SetActive(false);
     }
 }
 
