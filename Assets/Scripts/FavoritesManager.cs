@@ -16,6 +16,13 @@ public class FavoritesManager : MonoBehaviour
     public GameObject favoriteDetailPanel; // Reference to the panel to open
     public GameObject favoriteScreen;
 
+    public GameObject confirmationPanel;
+    public Button confirmButton;
+    public Button cancelButton;
+
+    private GameObject selectedFavoriteItem;
+    private Drink selectedDrink;
+
     public static event Action<Drink> OnFavoriteClicked;
 
     private HashSet<Drink> favoriteDrinks = new HashSet<Drink>();
@@ -132,7 +139,7 @@ public class FavoritesManager : MonoBehaviour
             if (removeButton != null)
             {
                 // Add onClick listener to the removeButton
-                removeButton.onClick.AddListener(() => RemoveFromFavorites(drink, favoriteItem));
+                removeButton.onClick.AddListener(() => ShowDeleteConfirmation(drink, favoriteItem));
             }
             else
             {
@@ -148,6 +155,39 @@ public class FavoritesManager : MonoBehaviour
             Debug.LogError("Failed to instantiate favorite item prefab.");
         }
     }
+    public void ShowDeleteConfirmation(Drink drink, GameObject favoriteItem)
+    {
+        // Store the selected drink and item
+        selectedDrink = drink;
+        selectedFavoriteItem = favoriteItem;
+
+        // Display the confirmation panel
+        confirmationPanel.SetActive(true);
+    }
+
+    // This method will be called when the user confirms the deletion
+    public void ConfirmDelete()
+    {
+        // Call the original RemoveFromFavorites method to delete the item
+        RemoveFromFavorites(selectedDrink, selectedFavoriteItem);
+
+        // Hide the confirmation panel
+        confirmationPanel.SetActive(false);
+
+        // Clear the selected references
+        selectedDrink = null;
+        selectedFavoriteItem = null;
+    }
+
+    // This method will be called when the user cancels the deletion
+    public void CancelDelete()
+    {
+        // Just hide the confirmation panel and clear the references
+        confirmationPanel.SetActive(false);
+        selectedDrink = null;
+        selectedFavoriteItem = null;
+    }
+
     public void RemoveFromFavorites(Drink drink, GameObject favoriteItem)
     {
         if (favoriteDrinks.Remove(drink))

@@ -13,6 +13,11 @@ public class DisplaySavedDrinks : MonoBehaviour
     public GameObject ownDrinks;
     private DetailPanelScript detailPanelScript;
 
+    public GameObject confirmationPanel;  // Reference to the confirmation panel
+    public Button confirmDeleteButton;    // Reference to the confirm button
+    public Button cancelButton;           // Reference to the cancel button
+    private string drinkToDelete;         // Store the name of the drink to delete
+
     void OnEnable()
     {
         LoadAndDisplayDrinks();
@@ -101,12 +106,13 @@ public class DisplaySavedDrinks : MonoBehaviour
             if (removeButton != null)
             {
                 removeButton.onClick.RemoveAllListeners();
-                removeButton.onClick.AddListener(() => DeleteDrink(drink.drinkName));
+                removeButton.onClick.AddListener(() => DeleteDrink(drink.drinkName));  // Show confirmation panel
             }
             else
             {
                 Debug.LogError("Button with tag RemoveOwn not found in drink prefab.");
             }
+
         }
 
         Canvas.ForceUpdateCanvases();
@@ -211,22 +217,34 @@ public class DisplaySavedDrinks : MonoBehaviour
 
     public void DeleteDrink(string drinkName)
     {
-        List<OwnDrink> drinks = LoadOwnDrinks();
+        drinkToDelete = drinkName;  // Store the drink name for later deletion
+        confirmationPanel.SetActive(true);  // Show the confirmation panel
+    }
 
-        OwnDrink drinkToRemove = drinks.Find(d => d.drinkName == drinkName);
+    public void ConfirmDelete()
+    {
+        List<OwnDrink> drinks = LoadOwnDrinks();
+        OwnDrink drinkToRemove = drinks.Find(d => d.drinkName == drinkToDelete);
         if (drinkToRemove != null)
         {
             drinks.Remove(drinkToRemove);
             SaveOwnDrinks(drinks);
-            Debug.Log("Deleted drink: " + drinkName);
-
+            Debug.Log("Deleted drink: " + drinkToDelete);
             LoadAndDisplayDrinks();
         }
         else
         {
-            Debug.LogWarning("Drink not found: " + drinkName);
+            Debug.LogWarning("Drink not found: " + drinkToDelete);
         }
+
+        confirmationPanel.SetActive(false);  // Hide the confirmation panel after deletion
     }
+
+    public void CancelDelete()
+    {
+        confirmationPanel.SetActive(false);  // Hide the confirmation panel without deleting
+    }
+
 
     private void SaveOwnDrinks(List<OwnDrink> drinks)
     {
