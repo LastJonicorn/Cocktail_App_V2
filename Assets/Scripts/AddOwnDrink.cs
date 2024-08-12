@@ -36,6 +36,9 @@ public class AddOwnDrink : MonoBehaviour
     public VerticalLayoutGroup layoutGroup;
     public List<GameObject> ingredientMeasurementPairs;
 
+    public Sprite defaultSprite; // Assign this in the Unity Inspector
+
+
     private string picturePath;
     private List<Ingredient> ingredients = new List<Ingredient>();
     private int activePairsCount = 0;
@@ -47,10 +50,12 @@ public class AddOwnDrink : MonoBehaviour
         saveButton.onClick.AddListener(SaveOwnDrink);
 
         RequestPermissions();
+        ClearFeedbackTextAfterDelay(0);
     }
 
     private void OnEnable()
     {
+        // Make sure to load the picture only if there's a valid path
         if (!string.IsNullOrEmpty(picturePath))
         {
             LoadPicture(picturePath);
@@ -60,6 +65,7 @@ public class AddOwnDrink : MonoBehaviour
         {
             cameraController.ReinitializeCamera();
         }
+        ClearFeedbackTextAfterDelay(0);
 
         RefreshForm();
     }
@@ -113,7 +119,7 @@ public class AddOwnDrink : MonoBehaviour
         if (cameraController != null)
         {
             picturePath = "";
-            rawImage.texture = null;
+            rawImage.texture = defaultSprite.texture; // Optionally show a default image
             rawImage.rectTransform.sizeDelta = new Vector2(500, 500);
 
             cameraController.TakePicture();
@@ -127,18 +133,25 @@ public class AddOwnDrink : MonoBehaviour
 
     private IEnumerator UpdatePicturePath()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(1.0f); // Increase wait time if necessary
 
-        while (string.IsNullOrEmpty(cameraController.GetPicturePath()))
+        string path = cameraController.GetPicturePath();
+
+        while (string.IsNullOrEmpty(path))
         {
-            yield return null;
+            yield return new WaitForSeconds(0.1f);
+            path = cameraController.GetPicturePath();
         }
 
-        picturePath = cameraController.GetPicturePath();
+        picturePath = path;
 
         if (!string.IsNullOrEmpty(picturePath))
         {
             LoadPicture(picturePath);
+        }
+        else
+        {
+            Debug.LogError("Picture path is empty after capturing.");
         }
     }
 
@@ -148,19 +161,26 @@ public class AddOwnDrink : MonoBehaviour
 
         if (File.Exists(fullPath))
         {
-            byte[] fileData = File.ReadAllBytes(fullPath);
-            Texture2D texture = new Texture2D(2, 2);
-            texture.LoadImage(fileData);
+            try
+            {
+                byte[] fileData = File.ReadAllBytes(fullPath);
+                Texture2D texture = new Texture2D(2, 2);
+                texture.LoadImage(fileData);
 
-            if (rawImage != null)
-            {
-                rawImage.texture = texture;
-                rawImage.rectTransform.sizeDelta = new Vector2(500, 500);
-                rawImage.SetNativeSize();
+                if (rawImage != null)
+                {
+                    rawImage.texture = texture;
+                    rawImage.rectTransform.sizeDelta = new Vector2(500, 500);
+                    rawImage.SetNativeSize();
+                }
+                else
+                {
+                    Debug.LogWarning("RawImage is null when trying to load picture.");
+                }
             }
-            else
+            catch (System.Exception ex)
             {
-                Debug.LogWarning("RawImage is null when trying to load picture.");
+                Debug.LogError("Error loading picture: " + ex.Message);
             }
         }
         else
@@ -177,7 +197,7 @@ public class AddOwnDrink : MonoBehaviour
         {
             ingredientMeasurementPairs[activePairsCount].SetActive(true);
             activePairsCount++;
-            Debug.Log($"Activated ingredient pair {activePairsCount - 1}");
+            //Debug.Log($"Activated ingredient pair {activePairsCount - 1}");
         }
         else
         {
@@ -208,7 +228,7 @@ public class AddOwnDrink : MonoBehaviour
             string ingredientName = ingredientInput.text;
             string measurement = measurementInput.text;
 
-            Debug.Log($"Pair {i}: Ingredient = {ingredientName}, Measurement = {measurement}");
+            //Debug.Log($"Pair {i}: Ingredient = {ingredientName}, Measurement = {measurement}");
 
             if (string.IsNullOrEmpty(ingredientName))
             {
@@ -231,8 +251,16 @@ public class AddOwnDrink : MonoBehaviour
             return;
         }
 
-        // Ensure the picture path is obtained from the CameraController
-        string picturePath = cameraController.GetPicturePath();
+        // Check if the picture path is valid, otherwise use the default sprite
+        //string picturePath = cameraController.GetPicturePath();
+
+        Debug.Log("Current picturePath is: " + picturePath);
+
+        if (string.IsNullOrEmpty(picturePath) && defaultSprite != null)
+        {
+            // Save the default sprite as a placeholder
+            picturePath = SaveDefaultSprite();
+        }
 
         OwnDrink ownDrink = new OwnDrink
         {
@@ -249,15 +277,32 @@ public class AddOwnDrink : MonoBehaviour
         PlayerPrefs.SetString(DrinksKey, json);
         PlayerPrefs.Save();
 
-        SetFeedbackText("Drink " + drinkName + " saved succesfully");
+        SetFeedbackText("Drink " + drinkName + " saved successfully");
 
         RefreshForm();
     }
 
+    private string SaveDefaultSprite()
+    {
+        string path = Path.Combine(Application.persistentDataPath, "defaultSprite.png");
+        if (defaultSprite != null)
+        {
+            Texture2D texture = SpriteToTexture(defaultSprite);
+            File.WriteAllBytes(path, texture.EncodeToPNG());
+        }
+        return "defaultSprite.png";
+    }
+
+    private Texture2D SpriteToTexture(Sprite sprite)
+    {
+        Texture2D texture = new Texture2D((int)sprite.rect.width, (int)sprite.rect.height);
+        texture.SetPixels(sprite.texture.GetPixels((int)sprite.rect.x, (int)sprite.rect.y, (int)sprite.rect.width, (int)sprite.rect.height));
+        texture.Apply();
+        return texture;
+    }
+
     private void RefreshForm()
     {
-        Debug.Log("RefreshForm called");
-
         drinkNameInput.text = "";
         instructionsInput.text = "";
 

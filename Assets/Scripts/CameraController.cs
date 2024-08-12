@@ -18,6 +18,7 @@ public class CameraController : MonoBehaviour
             webCamTexture = null;
         }
 
+        // Initialize the WebCamTexture
         webCamTexture = new WebCamTexture();
         cameraRawImage.texture = webCamTexture;
         cameraRawImage.material.mainTexture = webCamTexture;
@@ -35,7 +36,8 @@ public class CameraController : MonoBehaviour
 
         if (webCamTexture.width > 16 && webCamTexture.height > 16)
         {
-            AdjustCameraOrientation();
+            // Force the camera feed to be displayed correctly in portrait mode
+            AdjustCameraForPortraitMode();
         }
         else
         {
@@ -43,14 +45,14 @@ public class CameraController : MonoBehaviour
         }
     }
 
-    private void AdjustCameraOrientation()
+    private void AdjustCameraForPortraitMode()
     {
-        // Rotate the RawImage by 90 degrees to the left
-        cameraRawImage.rectTransform.localEulerAngles = new Vector3(0, 0, -90);
+        // Force the camera feed to portrait mode by rotating the RawImage
+        cameraRawImage.rectTransform.localEulerAngles = new Vector3(0, 0, 90);
 
-        // Flip the scale to adjust the aspect ratio
+        // Flip the image if it's mirrored (for front cameras)
         bool isVertical = webCamTexture.videoVerticallyMirrored;
-        cameraRawImage.rectTransform.localScale = new Vector3(isVertical ? -1 : 1, 1, 1);
+        cameraRawImage.rectTransform.localScale = new Vector3(isVertical ? 1 : -1, -1, 1);
     }
 
     public void StopCamera()
@@ -95,14 +97,19 @@ public class CameraController : MonoBehaviour
 
         try
         {
+            // Capture the photo from the webcam
             Texture2D photo = new Texture2D(webCamTexture.width, webCamTexture.height, TextureFormat.RGB24, false);
             photo.SetPixels(webCamTexture.GetPixels());
             photo.Apply();
 
-            Texture2D squarePhoto = ResizeTexture(photo, 500, 500);
-            Texture2D rotatedPhoto = RotateTextureLeft(squarePhoto);
+            // Rotate the captured photo to match the portrait orientation
+            Texture2D rotatedPhoto = RotateTextureLeft(photo); // Rotate left (90 degrees counter-clockwise)
 
-            byte[] bytes = rotatedPhoto.EncodeToPNG();
+            // Optionally resize the rotated photo
+            Texture2D squarePhoto = ResizeTexture(rotatedPhoto, 500, 500);
+
+            // Save the rotated and resized photo
+            byte[] bytes = squarePhoto.EncodeToPNG();
             string newPicturePath = Path.Combine(Application.persistentDataPath, System.Guid.NewGuid().ToString() + ".png");
             File.WriteAllBytes(newPicturePath, bytes);
 
@@ -110,9 +117,10 @@ public class CameraController : MonoBehaviour
 
             Debug.Log("Photo saved to: " + picturePath);
 
+            // Clean up
             Destroy(photo);
-            Destroy(squarePhoto);
             Destroy(rotatedPhoto);
+            Destroy(squarePhoto);
         }
         catch (System.Exception ex)
         {
@@ -120,23 +128,6 @@ public class CameraController : MonoBehaviour
         }
 
         isCapturing = false;
-    }
-
-    private Texture2D ResizeTexture(Texture2D original, int width, int height)
-    {
-        RenderTexture rt = RenderTexture.GetTemporary(width, height);
-        rt.filterMode = FilterMode.Trilinear;
-
-        RenderTexture.active = rt;
-        Graphics.Blit(original, rt);
-        Texture2D result = new Texture2D(width, height);
-        result.ReadPixels(new Rect(0, 0, width, height), 0, 0);
-        result.Apply();
-
-        RenderTexture.active = null;
-        RenderTexture.ReleaseTemporary(rt);
-
-        return result;
     }
 
     private Texture2D RotateTextureLeft(Texture2D original)
@@ -155,6 +146,23 @@ public class CameraController : MonoBehaviour
 
         rotated.Apply();
         return rotated;
+    }
+
+    private Texture2D ResizeTexture(Texture2D original, int width, int height)
+    {
+        RenderTexture rt = RenderTexture.GetTemporary(width, height);
+        rt.filterMode = FilterMode.Trilinear;
+
+        RenderTexture.active = rt;
+        Graphics.Blit(original, rt);
+        Texture2D result = new Texture2D(width, height);
+        result.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+        result.Apply();
+
+        RenderTexture.active = null;
+        RenderTexture.ReleaseTemporary(rt);
+
+        return result;
     }
 
     public string GetPicturePath()
