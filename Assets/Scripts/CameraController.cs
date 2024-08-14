@@ -102,13 +102,10 @@ public class CameraController : MonoBehaviour
             photo.SetPixels(webCamTexture.GetPixels());
             photo.Apply();
 
-            // Rotate the captured photo to match the portrait orientation
-            Texture2D rotatedPhoto = RotateTextureLeft(photo); // Rotate left (90 degrees counter-clockwise)
+            // Optionally resize the captured photo
+            Texture2D squarePhoto = ResizeTexture(photo, 500, 500);
 
-            // Optionally resize the rotated photo
-            Texture2D squarePhoto = ResizeTexture(rotatedPhoto, 500, 500);
-
-            // Save the rotated and resized photo
+            // Save the resized photo
             byte[] bytes = squarePhoto.EncodeToPNG();
             string newPicturePath = Path.Combine(Application.persistentDataPath, System.Guid.NewGuid().ToString() + ".png");
             File.WriteAllBytes(newPicturePath, bytes);
@@ -119,7 +116,6 @@ public class CameraController : MonoBehaviour
 
             // Clean up
             Destroy(photo);
-            Destroy(rotatedPhoto);
             Destroy(squarePhoto);
         }
         catch (System.Exception ex)
@@ -130,23 +126,7 @@ public class CameraController : MonoBehaviour
         isCapturing = false;
     }
 
-    private Texture2D RotateTextureLeft(Texture2D original)
-    {
-        int width = original.width;
-        int height = original.height;
-        Texture2D rotated = new Texture2D(height, width);
-
-        for (int y = 0; y < height; y++)
-        {
-            for (int x = 0; x < width; x++)
-            {
-                rotated.SetPixel(y, width - x - 1, original.GetPixel(x, y));
-            }
-        }
-
-        rotated.Apply();
-        return rotated;
-    }
+    //Deleted bunch of rotation logic here 
 
     private Texture2D ResizeTexture(Texture2D original, int width, int height)
     {
@@ -168,6 +148,11 @@ public class CameraController : MonoBehaviour
     public string GetPicturePath()
     {
         return picturePath;
+    }
+
+    public void ClearPicturePath()
+    {
+        picturePath = null;
     }
 
     public void ReinitializeCamera()

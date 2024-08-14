@@ -36,8 +36,8 @@ public class AddOwnDrink : MonoBehaviour
     public VerticalLayoutGroup layoutGroup;
     public List<GameObject> ingredientMeasurementPairs;
 
-    public Sprite defaultSprite; // Assign this in the Unity Inspector
-
+    public Sprite defaultSprite;
+    public Button retakePictureButton;
 
     private string picturePath;
     private List<Ingredient> ingredients = new List<Ingredient>();
@@ -55,7 +55,10 @@ public class AddOwnDrink : MonoBehaviour
 
     private void OnEnable()
     {
-        // Make sure to load the picture only if there's a valid path
+        feedbackText.text = "";
+        takePictureButton.gameObject.SetActive(true);
+        retakePictureButton.gameObject.SetActive(false);
+
         if (!string.IsNullOrEmpty(picturePath))
         {
             LoadPicture(picturePath);
@@ -119,7 +122,7 @@ public class AddOwnDrink : MonoBehaviour
         if (cameraController != null)
         {
             picturePath = "";
-            rawImage.texture = defaultSprite.texture; // Optionally show a default image
+            rawImage.texture = defaultSprite.texture;
             rawImage.rectTransform.sizeDelta = new Vector2(500, 500);
 
             cameraController.TakePicture();
@@ -130,10 +133,23 @@ public class AddOwnDrink : MonoBehaviour
             Debug.LogError("CameraController reference not set in AddOwnDrink script.");
         }
     }
+    public void RetakePicture()
+    {
+        cameraController.ClearPicturePath(); //This is new if something breaks
+        picturePath = "";
+
+        if (rawImage != null)
+        {
+            rawImage.texture = null;
+            rawImage.rectTransform.sizeDelta = new Vector2(500, 500);
+        }
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(layoutGroup.GetComponent<RectTransform>());
+    }
 
     private IEnumerator UpdatePicturePath()
     {
-        yield return new WaitForSeconds(1.0f); // Increase wait time if necessary
+        yield return new WaitForSeconds(1.0f); // Increase or decrease wait time if necessary
 
         string path = cameraController.GetPicturePath();
 
@@ -188,6 +204,7 @@ public class AddOwnDrink : MonoBehaviour
             Debug.LogError("Failed to load picture: File does not exist at path: " + fullPath);
         }
     }
+
 
     public void ActivateNextIngredientMeasurementPair()
     {
@@ -252,7 +269,7 @@ public class AddOwnDrink : MonoBehaviour
         }
 
         // Check if the picture path is valid, otherwise use the default sprite
-        //string picturePath = cameraController.GetPicturePath();
+        string picturePath = cameraController.GetPicturePath();
 
         Debug.Log("Current picturePath is: " + picturePath);
 
@@ -311,7 +328,6 @@ public class AddOwnDrink : MonoBehaviour
             pair.SetActive(false);
         }
 
-        // Force rebuild the layout to update the space reserved by deactivated objects
         LayoutRebuilder.ForceRebuildLayoutImmediate(layoutGroup.GetComponent<RectTransform>());
 
         if (ingredientMeasurementPairs.Count > 0)
@@ -330,6 +346,7 @@ public class AddOwnDrink : MonoBehaviour
             activePairsCount = 0;
         }
 
+        cameraController.ClearPicturePath(); //This is new if something breaks
         picturePath = "";
 
         if (rawImage != null)
@@ -338,7 +355,6 @@ public class AddOwnDrink : MonoBehaviour
             rawImage.rectTransform.sizeDelta = new Vector2(500, 500);
         }
 
-        // Force rebuild the layout again after making any changes
         LayoutRebuilder.ForceRebuildLayoutImmediate(layoutGroup.GetComponent<RectTransform>());
     }
 

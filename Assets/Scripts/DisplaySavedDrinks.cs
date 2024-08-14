@@ -147,7 +147,6 @@ public class DisplaySavedDrinks : MonoBehaviour
         }
         ownDrinks.SetActive(false);
     }
-
     private IEnumerator LoadPicture(string path, RawImage targetRawImage = null, Image targetImage = null)
     {
         string fullPath = Path.Combine(Application.persistentDataPath, path);
@@ -171,6 +170,9 @@ public class DisplaySavedDrinks : MonoBehaviour
                     float targetWidth = 250f;
                     float targetHeight = targetWidth / aspectRatio;
                     targetRawImage.rectTransform.sizeDelta = new Vector2(targetWidth, targetHeight);
+
+                    // Apply the rotation (90 degrees in this example)
+                    targetRawImage.rectTransform.localEulerAngles = new Vector3(0, 0, -90); //This might break stuff!!!!!!!!!
                 }
                 else if (targetImage != null)
                 {
@@ -180,6 +182,9 @@ public class DisplaySavedDrinks : MonoBehaviour
                     float targetWidth = 250f;
                     float targetHeight = targetWidth / aspectRatio;
                     targetImage.rectTransform.sizeDelta = new Vector2(targetWidth, targetHeight);
+
+                    // Apply the rotation (90 degrees in this example)
+                    targetImage.rectTransform.localEulerAngles = new Vector3(0, 0, -90); //This might break stuff!!!!!!!!!
                 }
                 else
                 {
@@ -198,8 +203,6 @@ public class DisplaySavedDrinks : MonoBehaviour
 
         yield return null;
     }
-
-
 
     public List<OwnDrink> LoadOwnDrinks()
     {
@@ -225,8 +228,32 @@ public class DisplaySavedDrinks : MonoBehaviour
     {
         List<OwnDrink> drinks = LoadOwnDrinks();
         OwnDrink drinkToRemove = drinks.Find(d => d.drinkName == drinkToDelete);
+
         if (drinkToRemove != null)
         {
+            // Delete the associated image if it exists
+            if (!string.IsNullOrEmpty(drinkToRemove.picturePath))
+            {
+                string fullPath = Path.Combine(Application.persistentDataPath, drinkToRemove.picturePath);
+                if (File.Exists(fullPath))
+                {
+                    try
+                    {
+                        File.Delete(fullPath);
+                        Debug.Log("Deleted image file at path: " + fullPath);
+                    }
+                    catch (IOException e)
+                    {
+                        Debug.LogError("Failed to delete image file: " + e.Message);
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("Image file not found at path: " + fullPath);
+                }
+            }
+
+            // Remove the drink from the list
             drinks.Remove(drinkToRemove);
             SaveOwnDrinks(drinks);
             Debug.Log("Deleted drink: " + drinkToDelete);
@@ -239,6 +266,7 @@ public class DisplaySavedDrinks : MonoBehaviour
 
         confirmationPanel.SetActive(false);  // Hide the confirmation panel after deletion
     }
+
 
     public void CancelDelete()
     {

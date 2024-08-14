@@ -231,8 +231,16 @@ public class DetailPanelScript : MonoBehaviour
             Texture2D texture = new Texture2D(2, 2);
             texture.LoadImage(fileData);
 
-            drinkImage.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+            // Create a sprite from the loaded texture
+            Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+
+            // Apply the sprite to the Image component
+            drinkImage.sprite = sprite;
             drinkImage.preserveAspect = true;
+
+            // Apply rotation to the Image component's RectTransform
+            // For a 90-degree rotation, set localEulerAngles to new Vector3(0, 0, 90)
+            drinkImage.rectTransform.localEulerAngles = new Vector3(0, 0, -90); //This might break stuff!!!!!!!!!
         }
         else
         {
@@ -241,6 +249,7 @@ public class DetailPanelScript : MonoBehaviour
 
         yield return null;
     }
+
 
     private Drink ConvertOwnDrinkToDrink(OwnDrink ownDrink)
     {
