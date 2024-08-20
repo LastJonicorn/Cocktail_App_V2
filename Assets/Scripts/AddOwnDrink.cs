@@ -31,10 +31,14 @@ public class AddOwnDrink : MonoBehaviour
     public Button addIngredientButton;
     public Button saveButton;
     public TextMeshProUGUI feedbackText;
+    public GameObject feedbackTextContainer; // The GameObject that contains the feedback text
     public RawImage rawImage;
     public CameraController cameraController;
     public VerticalLayoutGroup layoutGroup;
     public List<GameObject> ingredientMeasurementPairs;
+
+    //public Image drinkImage;
+    private bool isPictureSaved = false;
 
     public Sprite defaultSprite;
     public Button retakePictureButton;
@@ -50,8 +54,9 @@ public class AddOwnDrink : MonoBehaviour
         saveButton.onClick.AddListener(SaveOwnDrink);
 
         RequestPermissions();
-        ClearFeedbackTextAfterDelay(0);
+        feedbackTextContainer.SetActive(false); // Initially deactivate the feedback text container
     }
+
 
     private void OnEnable()
     {
@@ -79,7 +84,13 @@ public class AddOwnDrink : MonoBehaviour
         {
             cameraController.StopCamera();
         }
+
+        if (!isPictureSaved && !string.IsNullOrEmpty(picturePath))
+        {
+            DeletePicture(picturePath);
+        }
     }
+
 
     private void RequestPermissionsAndTakePicture()
     {
@@ -121,7 +132,7 @@ public class AddOwnDrink : MonoBehaviour
     {
         if (cameraController != null)
         {
-            picturePath = "";
+            //picturePath = "";
             rawImage.texture = defaultSprite.texture;
             rawImage.rectTransform.sizeDelta = new Vector2(500, 500);
 
@@ -138,6 +149,8 @@ public class AddOwnDrink : MonoBehaviour
         cameraController.ClearPicturePath(); //This is new if something breaks
         picturePath = "";
 
+        cameraController.ReinitializeCamera();
+
         if (rawImage != null)
         {
             rawImage.texture = null;
@@ -149,31 +162,30 @@ public class AddOwnDrink : MonoBehaviour
 
     private IEnumerator UpdatePicturePath()
     {
-        yield return new WaitForSeconds(1.0f); // Increase or decrease wait time if necessary
-
         string path = cameraController.GetPicturePath();
 
         while (string.IsNullOrEmpty(path))
         {
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.5f);
             path = cameraController.GetPicturePath();
         }
 
         picturePath = path;
 
-        if (!string.IsNullOrEmpty(picturePath))
+        Debug.Log($"Picture path updated: {picturePath}");
+
+        // Load the picture on the main thread
+        UnityMainThreadDispatcher.Instance().Enqueue(() =>
         {
-            LoadPicture(picturePath);
-        }
-        else
-        {
-            Debug.LogError("Picture path is empty after capturing.");
-        }
+            picturePath = cameraController.GetPicturePath();
+            //LoadAndDisplayPicture(picturePath);
+        });
     }
 
     private void LoadPicture(string path)
     {
         string fullPath = Path.Combine(Application.persistentDataPath, path);
+        Debug.Log($"Attempting to load picture from: {fullPath}");
 
         if (File.Exists(fullPath))
         {
@@ -181,28 +193,41 @@ public class AddOwnDrink : MonoBehaviour
             {
                 byte[] fileData = File.ReadAllBytes(fullPath);
                 Texture2D texture = new Texture2D(2, 2);
-                texture.LoadImage(fileData);
-
-                if (rawImage != null)
+                if (texture.LoadImage(fileData))
                 {
-                    rawImage.texture = texture;
-                    rawImage.rectTransform.sizeDelta = new Vector2(500, 500);
-                    rawImage.SetNativeSize();
+                    Debug.Log($"Texture loaded successfully. Size: {texture.width}x{texture.height}");
+                    if (rawImage != null)
+                    {
+                        rawImage.texture = texture;
+                        rawImage.rectTransform.sizeDelta = new Vector2(500, 500);
+                        LayoutRebuilder.ForceRebuildLayoutImmediate(rawImage.rectTransform);
+                        Debug.Log("RawImage texture set and layout rebuilt");
+                    }
+                    else
+                    {
+                        Debug.LogError("RawImage is null when trying to load picture.");
+                    }
                 }
                 else
                 {
-                    Debug.LogWarning("RawImage is null when trying to load picture.");
+                    Debug.LogError("Failed to load image data into texture.");
                 }
             }
             catch (System.Exception ex)
             {
-                Debug.LogError("Error loading picture: " + ex.Message);
+                Debug.LogError($"Error loading picture: {ex.Message}\n{ex.StackTrace}");
             }
         }
         else
         {
-            Debug.LogError("Failed to load picture: File does not exist at path: " + fullPath);
+            Debug.LogError($"Failed to load picture: File does not exist at path: {fullPath}");
+            SetFeedbackText("No image found to load"); //Delete this later
         }
+
+        UnityMainThreadDispatcher.Instance().Enqueue(() =>
+        {
+            ForceUIRefresh();
+        });
     }
 
 
@@ -245,8 +270,6 @@ public class AddOwnDrink : MonoBehaviour
             string ingredientName = ingredientInput.text;
             string measurement = measurementInput.text;
 
-            //Debug.Log($"Pair {i}: Ingredient = {ingredientName}, Measurement = {measurement}");
-
             if (string.IsNullOrEmpty(ingredientName))
             {
                 SetFeedbackText("Ingredient name cannot be empty.");
@@ -268,15 +291,16 @@ public class AddOwnDrink : MonoBehaviour
             return;
         }
 
-        // Check if the picture path is valid, otherwise use the default sprite
-        string picturePath = cameraController.GetPicturePath();
+        // Ensure that the picturePath is correctly set
+        picturePath = cameraController.GetPicturePath();
 
         Debug.Log("Current picturePath is: " + picturePath);
 
-        if (string.IsNullOrEmpty(picturePath) && defaultSprite != null)
+        if (string.IsNullOrEmpty(picturePath))
         {
-            // Save the default sprite as a placeholder
+            // Assign the default sprite's path if no picture was taken
             picturePath = SaveDefaultSprite();
+            Debug.Log("Default sprite path assigned: " + picturePath);
         }
 
         OwnDrink ownDrink = new OwnDrink
@@ -296,8 +320,34 @@ public class AddOwnDrink : MonoBehaviour
 
         SetFeedbackText("Drink " + drinkName + " saved successfully");
 
+        isPictureSaved = true;  // Mark the picture as saved
+
         RefreshForm();
     }
+
+
+
+    private void DeletePicture(string path)
+    {
+        string fullPath = Path.Combine(Application.persistentDataPath, path);
+        if (File.Exists(fullPath))
+        {
+            try
+            {
+                File.Delete(fullPath);
+                Debug.Log($"Picture deleted: {fullPath}");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"Failed to delete picture: {ex.Message}");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"No file found to delete at path: {fullPath}");
+        }
+    }
+
 
     private string SaveDefaultSprite()
     {
@@ -355,6 +405,10 @@ public class AddOwnDrink : MonoBehaviour
             rawImage.rectTransform.sizeDelta = new Vector2(500, 500);
         }
 
+        isPictureSaved = false;
+
+        cameraController.ReinitializeCamera();
+
         LayoutRebuilder.ForceRebuildLayoutImmediate(layoutGroup.GetComponent<RectTransform>());
     }
 
@@ -369,18 +423,32 @@ public class AddOwnDrink : MonoBehaviour
         return new List<OwnDrink>();
     }
 
-    private void SetFeedbackText(string message)
+    private void SetFeedbackText(string text)
     {
-        feedbackText.gameObject.SetActive(true);
-        feedbackText.text = message;
-        StartCoroutine(ClearFeedbackTextAfterDelay(3));
+        feedbackText.text = text;
+        feedbackTextContainer.SetActive(true);  // Activate the GameObject
+        ClearFeedbackTextAfterDelay();
     }
 
-    private IEnumerator ClearFeedbackTextAfterDelay(float delay)
+    private void ClearFeedbackTextAfterDelay(float delay = 3.0f)
+    {
+        StartCoroutine(ClearFeedbackTextCoroutine(delay));
+    }
+
+    private IEnumerator ClearFeedbackTextCoroutine(float delay)
     {
         yield return new WaitForSeconds(delay);
         feedbackText.text = "";
-        feedbackText.gameObject.SetActive(false);
+        feedbackTextContainer.SetActive(false);  // Deactivate the GameObject
+    }
+
+    private void ForceUIRefresh()
+    {
+        if (rawImage != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rawImage.rectTransform);
+            Canvas.ForceUpdateCanvases();
+        }
     }
 }
 

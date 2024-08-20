@@ -54,6 +54,31 @@ public class CameraController : MonoBehaviour
         bool isVertical = webCamTexture.videoVerticallyMirrored;
         cameraRawImage.rectTransform.localScale = new Vector3(isVertical ? 1 : -1, -1, 1);
     }
+    public void PauseCamera()
+    {
+        if (webCamTexture != null && webCamTexture.isPlaying)
+        {
+            webCamTexture.Pause();
+
+            // Keep the current frame on the screen by not changing the texture
+            // Ensure the RawImage keeps the current camera texture
+            cameraRawImage.texture = webCamTexture;
+            cameraRawImage.material.mainTexture = webCamTexture;
+        }
+        else
+        {
+            Debug.LogError("WebCamTexture is not running, cannot pause the camera.");
+        }
+    }
+
+
+    public void ResumeCamera()
+    {
+        if (webCamTexture != null && !webCamTexture.isPlaying)
+        {
+            webCamTexture.Play();  // This resumes the WebCamTexture after pausing
+        }
+    }
 
     public void StopCamera()
     {
@@ -117,6 +142,18 @@ public class CameraController : MonoBehaviour
             // Clean up
             Destroy(photo);
             Destroy(squarePhoto);
+
+            PauseCamera();
+
+            Texture2D loadTest = new Texture2D(2, 2);
+            if (loadTest.LoadImage(File.ReadAllBytes(picturePath)))
+            {
+                Debug.Log($"Image captured and loaded successfully. Size: {loadTest.width}x{loadTest.height}");
+            }
+            else
+            {
+                Debug.LogError("Failed to load captured image.");
+            }
         }
         catch (System.Exception ex)
         {
