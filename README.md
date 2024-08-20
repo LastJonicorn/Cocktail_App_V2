@@ -128,11 +128,19 @@
   <li> Adding own drink works on Android also... Didn't before. </li>
 </ul>
 
+<h1> 20.8.2024 </h1>
+<ul>
+  <li> AddOwnDrink camera stops to display the image user has taken </li>
+  <li> If image is not taken in AddOwnDrink the app logo is used as Image </li>
+  <li> Testing on Android and the AddOwnDrink seems to work fine (Problems with image rotation may occur on different devices) </li>
+  <li> Added styling to buttons and other elements </li>
+  <li> Started working on adding own categories </li>
+</ul>
+
 </div>
   <h1> TODOS </h1>
 <ul>
   <li> Display message "You don't have any own drinks saved" </li>
-  <li> Message should pop from top when OwnDrink is saved </li>
   <li> Add your favorite liquors with image (Maybe...) </li>
 </ul>
     
@@ -141,5 +149,4 @@
 <h1> Problems </h1>
 <ul>
   <li> Server for the apiKEY </li>
-  <li> Sometimes the wrong OwnDrink is deleted when deleting </li>
 </ul>
