@@ -155,7 +155,6 @@
   <h1> TODOS </h1>
 <ul>
   <li> Display message "You don't have any own drinks saved" </li>
-  <li> Add your favorite liquors with image (Maybe...) </li>
 </ul>
     
 </div>
