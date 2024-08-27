@@ -128,6 +128,8 @@
   <li> Adding own drink works on Android also... Didn't before. </li>
 </ul>
 
+</div>
+
 <h1> 20.8.2024 </h1>
 <ul>
   <li> AddOwnDrink camera stops to display the image user has taken </li>
@@ -136,6 +138,18 @@
   <li> Added styling to buttons and other elements </li>
   <li> Started working on adding own categories </li>
 </ul>
+
+</div>
+
+<h1> 27.8.2024 </h1>
+<ul>
+  <li> Added darker background </li>
+  <li> Finished own categories </li>
+  <li> Added info button on every screen because </li>
+  <li> Bugfixes and optimization </li>
+</ul>
+
+</div>
 
 </div>
   <h1> TODOS </h1>
