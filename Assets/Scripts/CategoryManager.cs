@@ -19,6 +19,21 @@ public class CategoryManager : MonoBehaviour
     public TMP_InputField ratingInputField; // Input field for item rating
     public Button confirmAddItemButton; // Button to confirm adding the item
 
+    public GameObject deleteCategoryConfirmationPanel; // The confirmation panel
+    public Button confirmDeleteButton; // The "Yes" button
+    public Button cancelDeleteButton; // The "No" button
+    private string categoryToDelete; // Store the category name to delete
+    private GameObject categoryObjToDelete; // Store the category GameObject to delete
+    private GameObject itemsContainerToDelete; // Store the items container to delete
+
+    public GameObject deleteItemConfirmationPanel; // Panel for confirming item deletion
+    public Button confirmDeleteItemButton; // Button to confirm item deletion
+    public Button cancelDeleteItemButton; // Button to cancel item deletion
+    private string itemToDelete; // Store the item name to delete
+    private GameObject itemObjToDelete; // Store the item GameObject to delete
+    private string categoryForItemDeletion; // Store the category of the item to delete
+
+
     private Dictionary<string, GameObject> categoryTextObjects = new Dictionary<string, GameObject>();
     private Dictionary<string, List<string>> categoriesWithItems = new Dictionary<string, List<string>>(); // Store items for each category
     private List<string> categories = new List<string>(); // Store category names
@@ -38,6 +53,70 @@ public class CategoryManager : MonoBehaviour
 
         // Ensure the addItemPanel is hidden at start
         addItemPanel.SetActive(false);
+
+        deleteCategoryConfirmationPanel.SetActive(false); // Ensure the panel is hidden at start
+        cancelDeleteButton.onClick.AddListener(CloseDeleteConfirmationPanel);
+
+        deleteItemConfirmationPanel.SetActive(false); // Ensure the panel is hidden at start
+        cancelDeleteItemButton.onClick.AddListener(CloseDeleteItemConfirmationPanel);
+
+    }
+
+    private void ShowDeleteConfirmationPanel(string categoryName, GameObject categoryObj, GameObject itemsContainer)
+    {
+        // Store references to delete later
+        categoryToDelete = categoryName;
+        categoryObjToDelete = categoryObj;
+        itemsContainerToDelete = itemsContainer;
+
+        // Show the confirmation panel
+        deleteCategoryConfirmationPanel.SetActive(true);
+
+        // Add listener to the confirm delete button
+        confirmDeleteButton.onClick.RemoveAllListeners(); // Remove previous listeners to avoid stacking
+        confirmDeleteButton.onClick.AddListener(ConfirmDeleteCategory);
+    }
+    private void ShowDeleteItemConfirmationPanel(string categoryName, string itemName, GameObject itemObj)
+    {
+        // Store references to delete later
+        categoryForItemDeletion = categoryName;
+        itemToDelete = itemName;
+        itemObjToDelete = itemObj;
+
+        // Show the confirmation panel
+        deleteItemConfirmationPanel.SetActive(true);
+
+        // Add listener to the confirm delete button
+        confirmDeleteItemButton.onClick.RemoveAllListeners(); // Remove previous listeners to avoid stacking
+        confirmDeleteItemButton.onClick.AddListener(ConfirmDeleteItem);
+    }
+
+    private void CloseDeleteConfirmationPanel()
+    {
+        // Hide the confirmation panel
+        deleteCategoryConfirmationPanel.SetActive(false);
+    }
+    private void CloseDeleteItemConfirmationPanel()
+    {
+        // Hide the confirmation panel
+        deleteItemConfirmationPanel.SetActive(false);
+    }
+
+    private void ConfirmDeleteCategory()
+    {
+        // Actually delete the category and its items
+        DeleteCategory(categoryToDelete, categoryObjToDelete, itemsContainerToDelete);
+
+        // Hide the confirmation panel after deletion
+        CloseDeleteConfirmationPanel();
+    }
+    private void ConfirmDeleteItem()
+    {
+        // Actually delete the item
+        DeleteItem(categoryForItemDeletion, itemToDelete, itemObjToDelete);
+
+        // Hide the confirmation panel after deletion
+        CloseDeleteItemConfirmationPanel();
     }
 
     // Validation callback for numeric input
@@ -160,7 +239,7 @@ public class CategoryManager : MonoBehaviour
         categoryTextObjects[categoryName] = itemsContainer;
 
         // Add listener to delete category button
-        deleteCategoryButton.onClick.AddListener(() => DeleteCategory(categoryName, categoryObj, itemsContainer));
+        deleteCategoryButton.onClick.AddListener(() => ShowDeleteConfirmationPanel(categoryName, categoryObj, itemsContainer));
     }
 
     private void DeleteCategory(string categoryName, GameObject categoryObj, GameObject itemsContainer)
@@ -180,7 +259,6 @@ public class CategoryManager : MonoBehaviour
             SaveCategories(); // Save changes
         }
     }
-
 
     private void OpenAddItemPanel(string categoryName)
     {
@@ -234,7 +312,7 @@ public class CategoryManager : MonoBehaviour
                 ratingText.text = rating + " / 10";
 
                 // Add listener to delete button
-                deleteButton.onClick.AddListener(() => DeleteItem(categoryName, itemName, newItemObj));
+                deleteButton.onClick.AddListener(() => ShowDeleteItemConfirmationPanel(categoryName, itemName, newItemObj));
             }
             else
             {

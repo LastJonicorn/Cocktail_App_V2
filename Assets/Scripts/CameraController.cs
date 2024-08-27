@@ -37,7 +37,7 @@ public class CameraController : MonoBehaviour
         if (webCamTexture.width > 16 && webCamTexture.height > 16)
         {
             // Force the camera feed to be displayed correctly in portrait mode
-            AdjustCameraForPortraitMode();
+            //AdjustCameraForPortraitMode();
         }
         else
         {

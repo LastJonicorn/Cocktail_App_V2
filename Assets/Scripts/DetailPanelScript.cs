@@ -23,7 +23,7 @@ public class DetailPanelScript : MonoBehaviour
     {
         // Update UI elements with drink details
         nameLabel.text = drink.strDrink;
-        instructionsLabel.text = "Instructions: " + drink.strInstructions;
+        instructionsLabel.text = drink.strInstructions;
 
         // Load drink image
         StartCoroutine(LoadImage(drink.strDrinkThumb));
